@@ -166,7 +166,7 @@ void treeMH::DeleteNode(Node* r) {
 }
 // check trung maMH
 bool treeMH::checkTrung(string maMH) {
-    Node*& tmp = getRoot();
+    Node* tmp = getRoot();
     while (tmp != NULL) {
         if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) < 0) {
             tmp = tmp->getLeft();
@@ -649,13 +649,7 @@ void treeMH::nhapMH(string str1, string str2, string str3, string str4, int chec
                 else if (1057 <= x && x <= 1151 && 709 <= y && y <= 748) {
                     if (input[0]->checkRong() == true && input[1]->checkRong() == true && input[2]->checkRong() == true && input[3]->checkRong() == true) {
 
-                        int tmp = MessageBox(
-                            NULL,
-                            (LPCWSTR)convertCharArrayToLPCWSTR("BAN CO MUON LUU MON HOC"),
-                            (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-                            MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
-                        );
-                        if (tmp == IDYES) {
+                        
                             //check = 0;
                             MH.setMaMH((const char*)input[0]->chuanHoa(input[0]->getContent()));
                             MH.setTenMH((const char*)input[1]->chuanHoa(input[1]->getContent()));
@@ -680,13 +674,23 @@ void treeMH::nhapMH(string str1, string str2, string str3, string str4, int chec
                                     MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
                                 );
                                 check = 0;
+                                continue;
                             }
                             else {
-                                int n = soNode(getRoot());
-                                vietDataDSMH(n);
-                                break;
+                                int tmp = MessageBox(
+                                    NULL,
+                                    (LPCWSTR)convertCharArrayToLPCWSTR("BAN CO MUON LUU MON HOC"),
+                                    (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+                                    MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
+                                );
+                                if (tmp == IDYES) {
+
+                                    int n = soNode(getRoot());
+                                    vietDataDSMH(n);
+                                    break;
+                                }
                             }
-                        }
+                        
                     }
                     else {
                         MessageBox(

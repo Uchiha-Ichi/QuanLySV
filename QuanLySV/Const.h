@@ -64,12 +64,15 @@ const int MAXLENGTH_DIEM = 3;
 */
 
 const int MAX_LOPTC = 10000;
+#define  SV_MAX 1000 
 /*
 ** File data
 */
 string dataMH = "MH.txt";
 string dataSV = "SV.txt";
 string dataLSV = "LopSV.txt";
+string dataLTC = "DSLTC.txt";
+string dataDK = "DSDK.txt";
 
 //----------------SCREEN----------
 #define SCREEN_WIDTH  1525
@@ -112,9 +115,17 @@ char _thoat[] = { "X" };
 char _themSinhVien[] = { "THEM SINH VIEN" };
 char _suaSinhVien[] = { "SUA SINH VIEN" };
 char _timkiem[] = { "TIM KIEM" };
-
+char _themLTC[] = { "THEM LTC" };
+char _suaLTC[] = { "SUA LTC" };
+char _huyLTC[] = { "HUY LTC" };
+char _dkTC[] = { "DANG KY TC" };
+char _xemDSSV[] = { "XEM DSSV" };
+char _dssv[] = { "DANH SACH SINH VIEN" };
+char _SV[] = { "SINH VIEN" };
+char _dkLopTC[] = { "DANG KY LOP TIN CHI" };
+char _continue[] = { "TIEP TUC" };
 //-------------------------Enum --------------------
-enum thaoTac { THEM, LOC, BACK, XUAT, SUA };
+enum thaoTac { THEM, LOC, BACK, XUAT, SUA, HUY, XEM, DANGKY, XUATDK, THOAT, XEM_DSDK };
 //-------------------------Trang --------------------
 
 int maxDong = 10;
@@ -127,6 +138,17 @@ int tableRightMH = 1435;
 
 //Lop
 int tableRightLop = 1140;
+//LopTC
+int tableRightLopTC = 1340;
+
+/*
+int maxDong = 10;
+int kcY = 30; // khoảng cách giữa y trên và y dưới
+int tableTop =    150;  // 280;
+int tableLeft =  50; // 100;
+int tableRight =   1200; // 1435;
+int tableBottom =   400; // 610;
+*/
 //---------------------Mau--------------------------
 #define XanhLe COLOR(108,135,126)
 #define HongNhat COLOR(241,208,215)
@@ -137,3 +159,4 @@ int tableRightLop = 1140;
 #define gray COLOR(127,125,125)
 #define graynhat COLOR(217,241,214)
 #define BlueNhat COLOR(191,207,255)
+#define Red COLOR(199,51,51)

@@ -3,6 +3,7 @@
 #include "Const.h"
 #include "MH.h"
 #include"LopSV.h"
+#include "DSLTC.h"
 
 
 
@@ -40,6 +41,8 @@ void menuFirst() {
 void free(treeMH cayMH, DSLH lop) {
 	lop.freeDSLH(lop.getHeadLH());
 	cayMH.DeleteNode(cayMH.getRoot());
+
+
 }
 
 
@@ -48,7 +51,11 @@ void menuFirstSet() {
 	menuFirst();
 	treeMH cayMH;
 	DSLH lop;
-
+	DSLTC LTC;
+	int colorNen = YELLOW;
+	int colorText = BLACK;
+	LTC.loadDataDS_LTC();
+	LTC.loadDataDS_DK();
 	int x = -1, y = -1;
 	int on = 1;
 	while (on) {
@@ -58,7 +65,9 @@ void menuFirstSet() {
 			clearmouseclick(WM_LBUTTONDOWN);
 			if (x >= 679 && x <= 1011 && y >= 228 && y <= 296) {
 				// Lop Tin Chi   
-
+				cleardevice();
+				LTC.menuLTC();
+				menuFirst();
 			}
 			else if (x >= 679 && x <= 1011 && y >= 354 && y <= 421) {
 				cleardevice();
@@ -73,11 +82,15 @@ void menuFirstSet() {
 				// Mon Hoc   
 			}
 			else if (x >= 679 && x <= 1011 && y >= 583 && y <= 651) {
-
+				cleardevice();
+				LTC.menuDiem();
 				// diem 
 			}
 			else if (1400 <= x && x <= 1490 && 10 <= y && y <= 60) {
 				on = 0;
+				LTC.writeDataDS_DK();
+				LTC.writeDataDS_LTC();
+				LTC.freeDS_LTC();
 				break;
 			}
 		}

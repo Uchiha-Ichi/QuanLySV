@@ -15,6 +15,13 @@ char* convertStringToChar(string str) {
     return tmp;
 }
 
+string convertIntToString(int so) {
+    stringstream ss;
+    ss << so;
+    string str;
+    str = ss.str();
+    return str;
+}
 
 char* convertFloatToChar(float so) {
     stringstream ss;
@@ -25,6 +32,10 @@ char* convertFloatToChar(float so) {
     strcpy_s(tmp, str.size() + 1, str.c_str());
     return tmp;
 }
+
+
+
+
 
 // dung cho MessageBoxx
 wchar_t* convertCharArrayToLPCWSTR(const char* charArray)

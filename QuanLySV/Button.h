@@ -2,6 +2,7 @@
 #pragma once
 #include"Const.h"
 //-----------------------------Menu--------------------------------------------------------
+
 void vien(int left, int right, int top, int bottom) {
     setfillstyle(SOLID_FILL, Den);
     bar(left - 1, top, left + 1, bottom);
@@ -12,7 +13,6 @@ void vien(int left, int right, int top, int bottom) {
     setfillstyle(SOLID_FILL, Den);
     bar(left, bottom - 1, right, bottom + 1);
 }
-
 
 void _buttonLopTinChi() {
     setbkcolor(Be);
@@ -69,6 +69,8 @@ void buttonThoat() {
     outtextxy((1490 + 1400) / 2 - textwidth(_thoat) / 2, (10 + 60) / 2 - textheight(_thoat) / 2, _thoat);
     vien(1400, 1490, 10, 60);
 }
+
+
 void tieuDe() {
     setbkcolor(HongNhat);
     setfillstyle(SOLID_FILL, HongNhat);
@@ -87,8 +89,9 @@ void buttonTimKiem() {
     setcolor(Den);
     outtextxy((55 + 180) / 2 - textwidth(_timkiem) / 2, (169 + 205) / 2 - textheight(_timkiem) / 2, _timkiem);
     vien(55, 180, 169, 205);
-
 }
+
+
 // ------------------------------MON HOC--------------------------------------
 void menuFirstSet();
 
@@ -115,6 +118,18 @@ void buttonLoc(int colorBK, int colortext, bool active);
 void menuSuaMH();
 
 void tieuDeMH();
+/*
+void vien(int left, int right, int top, int bottom) {
+    setfillstyle(SOLID_FILL, Den);
+    bar(left - 1, top, left + 1, bottom);
+    setfillstyle(SOLID_FILL, Den);
+    bar(left, top - 1, right, top + 1);
+    setfillstyle(SOLID_FILL, Den);
+    bar(right - 1, top, right + 1, bottom);
+    setfillstyle(SOLID_FILL, Den);
+    bar(left, bottom - 1, right, bottom + 1);
+}
+*/
 
 
 void buttonSaveMH() {
@@ -127,6 +142,16 @@ void buttonSaveMH() {
     vien(1057, 1137, 695, 734);
 }
 
+void buttonContinue() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(1035, 695, 1137, 734);
+    settextstyle(10, 0, 1);
+    setcolor(Blue);
+    outtextxy((1035 + 1137) / 2 - textwidth(_continue) / 2, (695 + 734) / 2 - textheight(_continue) / 2, _continue);
+    vien(1035, 1137, 695, 734);
+}
+
 void buttonSaveSV() {
     setbkcolor(Be);
     setfillstyle(SOLID_FILL, Be);
@@ -136,7 +161,6 @@ void buttonSaveSV() {
     outtextxy((755 + 835) / 2 - textwidth(_save) / 2, (695 + 734) / 2 - textheight(_save) / 2, _save);
     vien(755, 835, 695, 734);
 }
-
 void buttonHuyMH() {
     setbkcolor(Be);
     setfillstyle(SOLID_FILL, Be);
@@ -146,6 +170,7 @@ void buttonHuyMH() {
     outtextxy((425 + 520) / 2 - textwidth(_huy) / 2, (695 + 734) / 2 - textheight(_huy) / 2, _huy);
     vien(425, 520, 695, 734);
 }
+
 void buttonBack() {
     setbkcolor(HongNhat);
     setfillstyle(SOLID_FILL, HongNhat);
@@ -165,7 +190,7 @@ void menuSuaMH() {
     setbkcolor(Be);
     setfillstyle(SOLID_FILL, Be);
     bar(631, 125, 933, 180);
-    settextstyle(10, 0, 4);
+    settextstyle(10, 0, 5);
     setcolor(Blue);
     outtextxy((631 + 933) / 2 - textwidth(_suaMH) / 2, (125 + 170) / 2 - textheight(_suaMH) / 2, _suaMH);
     vien(631, 933, 125, 180);
@@ -180,7 +205,7 @@ void menuThemMH() {
     setbkcolor(Be);
     setfillstyle(SOLID_FILL, Be);
     bar(631, 125, 933, 180);
-    settextstyle(10, 0, 4);
+    settextstyle(10, 0, 5);
     setcolor(Blue);
     outtextxy((631 + 933) / 2 - textwidth(_themMH) / 2, (125 + 170) / 2 - textheight(_themMH) / 2, _themMH);
     vien(631, 933, 125, 180);
@@ -253,6 +278,16 @@ void tieuDeLopSV() {
     vien(397, 1173, 20, 100);
 }
 
+void tieuDeDSSV() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(254, 20, 1316, 100);
+    settextstyle(10, 0, 8);
+    setcolor(Blue);
+    outtextxy((254 + 1316) / 2 - textwidth(_dssv) / 2, (20 + 100) / 2 - textheight(_dssv) / 2, _dssv);
+    vien(254, 1316, 20, 100);
+}
+
 void menuThemLop() {
     setfillstyle(SOLID_FILL, BlueNhat);
     bar(402, 121, 1151, 748);
@@ -268,6 +303,7 @@ void menuThemLop() {
     buttonSaveMH();
 }
 // ------------------------------SINH VIEN--------------------------------------
+
 
 void buttonThoatSV() {
     setbkcolor(Be);
@@ -298,7 +334,7 @@ void menuThemSV() {
     bar(560, 125, 1011, 180);
     settextstyle(10, 0, 5);
     setcolor(Blue);
-    outtextxy((560 + 1011) / 2 - textwidth(_themSinhVien) / 2, (125 + 170) / 2 - textheight(_themSinhVien) / 2, _themSinhVien);
+    outtextxy((560 + 1011) / 2 - textwidth(_themSinhVien) / 2, (125 + 180) / 2 - textheight(_themSinhVien) / 2, _themSinhVien);
     vien(560, 1011, 125, 180);
     buttonSaveSV();
 }
@@ -317,3 +353,233 @@ void menuSuaSV() {
     buttonSaveSV();
     buttonThoatSV();
 }
+
+
+//----------------------------LOP TIN CHI------------------------
+
+void tieuDeLTC() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(397, 20, 1173, 100);
+    settextstyle(10, 0, 8);
+    setcolor(Blue);
+    outtextxy((397 + 1173) / 2 - textwidth(_lopTinChi) / 2, (20 + 100) / 2 - textheight(_lopTinChi) / 2, _lopTinChi);
+    vien(397, 1173, 20, 100);
+}
+
+
+void tieuDeLDK() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(397, 20, 1173, 100);
+    settextstyle(10, 0, 7);
+    setcolor(Blue);
+    outtextxy((397 + 1173) / 2 - textwidth(_dkLopTC) / 2, (20 + 100) / 2 - textheight(_dkLopTC) / 2, _dkLopTC);
+    vien(397, 1173, 20, 100);
+}
+
+void _menuxemDSSV() {
+    setfillstyle(SOLID_FILL, mauNen);
+    bar(0, 0, 1525, 777);
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(40, 243, 1490, 744);
+    vien(40, 1490, 243, 744);
+    settextstyle(10, 0, 3);
+    setcolor(Blue);
+    outtextxy(650, 180, _SV);
+    tieuDeDSSV();
+    buttonBack();
+    buttonTien();
+    buttonLui();
+}
+
+void menuThemLTC() {
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(402, 121, 1151, 748);
+    vien(402, 1151, 121, 748);
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(560, 125, 1011, 180);
+    settextstyle(10, 0, 6);
+    setcolor(Blue);
+    outtextxy((560 + 1011) / 2 - textwidth(_themLTC) / 2, (125 + 180) / 2 - textheight(_themLTC) / 2, _themLTC);
+    vien(560, 1011, 125, 180);
+    buttonHuyMH();
+    buttonSaveMH();
+}
+
+void menuSuaLTC() {
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(402, 121, 1151, 748);
+    vien(402, 1151, 121, 748);
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(560, 125, 1011, 180);
+    settextstyle(10, 0, 6);
+    setcolor(Blue);
+    outtextxy((560 + 1011) / 2 - textwidth(_suaLTC) / 2, (125 + 180) / 2 - textheight(_suaLTC) / 2, _suaLTC);
+    vien(560, 1011, 125, 180);
+    buttonHuyMH();
+    buttonSaveMH();
+}
+
+void menuHuyLTC() {
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(402, 121, 1151, 748);
+    vien(402, 1151, 121, 748);
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(560, 125, 1011, 180);
+    settextstyle(10, 0, 6);
+    setcolor(Blue);
+    outtextxy((560 + 1011) / 2 - textwidth(_huyLTC) / 2, (125 + 180) / 2 - textheight(_huyLTC) / 2, _huyLTC);
+    vien(560, 1011, 125, 180);
+    buttonHuyMH();
+    buttonSaveMH();
+}
+
+
+// menu hien thi form dang dk ltc
+void menuDkLTC() {
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(402, 121, 1151, 748);
+    vien(402, 1151, 121, 748);
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(560, 125, 1011, 180);
+    settextstyle(10, 0, 6);
+    setcolor(Blue);
+    outtextxy((560 + 1011) / 2 - textwidth(_dkTC) / 2, (125 + 180) / 2 - textheight(_dkTC) / 2, _dkTC);
+    vien(560, 1011, 125, 180);
+    buttonHuyMH();
+    buttonSaveMH();
+}
+
+// menu tong xuat danh sach mon de dang ky
+void _menuDKLTC(string str1, string str2) {
+    setfillstyle(SOLID_FILL, mauNen);
+    buttonBack();
+    bar(0, 0, 1525, 777);
+    tieuDeLDK();
+    buttonBack();
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(40, 243, 1490, 744);
+    vien(40, 1490, 243, 744);
+    settextstyle(10, 0, 3);
+    setcolor(Blue);
+    outtextxy(650, 180, _SV);
+    buttonTien();
+    buttonLui();
+}
+
+void buttonThemLTC() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(850, 169, 990, 214);
+    settextstyle(10, 0, 2);
+    setcolor(Blue);
+    outtextxy((850 + 990) / 2 - textwidth(_themLTC) / 2, (169 + 214) / 2 - textheight(_themLTC) / 2, _themLTC);
+    vien(850, 990, 169, 214);
+}
+
+
+void buttonHuyLTC() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(1010, 169, 1150, 214);
+    settextstyle(10, 0, 2);
+    setcolor(Blue);
+    outtextxy((1010 + 1150) / 2 - textwidth(_huyLTC) / 2, (169 + 214) / 2 - textheight(_huyLTC) / 2, _huyLTC);
+    vien(1010, 1150, 169, 214);
+}
+
+
+void buttonDKTC() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(1170, 169, 1330, 214);
+    settextstyle(10, 0, 2);
+    setcolor(Blue);
+    outtextxy((1170 + 1330) / 2 - textwidth(_dkTC) / 2, (169 + 214) / 2 - textheight(_dkTC) / 2, _dkTC);
+    vien(1170, 1330, 169, 214);
+}
+
+
+void buttonXemDSSV() {
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(1350, 169, 1490, 214);
+    settextstyle(10, 0, 2);
+    setcolor(Blue);
+    outtextxy((1350 + 1490) / 2 - textwidth(_xemDSSV) / 2, (169 + 214) / 2 - textheight(_xemDSSV) / 2, _xemDSSV);
+    vien(1350, 1490, 169, 214);
+}
+
+
+void _menuLTC() {
+    setfillstyle(SOLID_FILL, mauNen);
+    bar(0, 0, 1525, 777);
+    tieuDeLTC();
+    buttonBack();
+    buttonThemLTC();
+    buttonHuyLTC();
+    buttonDKTC();
+    buttonXemDSSV();
+
+
+
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(40, 243, 1490, 744);
+    vien(40, 1490, 243, 744);
+    buttonTien();
+    buttonLui();
+    //buttonLoc();
+   //buttonThoat();
+}
+
+
+void menuXuatSVDK() {
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(402, 121, 1151, 748);
+    vien(402, 1151, 121, 748);
+    setbkcolor(Be);
+    setfillstyle(SOLID_FILL, Be);
+    bar(631, 125, 933, 180);
+    settextstyle(10, 0, 5);
+    setcolor(Blue);
+    outtextxy((631 + 933) / 2 - textwidth(_xemDSSV) / 2, (125 + 170) / 2 - textheight(_xemDSSV) / 2, _xemDSSV);
+    vien(631, 933, 125, 180);
+    buttonHuyMH();
+    buttonContinue();
+}
+
+
+
+
+
+// _____________________DIEM_________________________
+
+void button() {
+
+}
+
+
+
+void _menuDiem() {
+    setfillstyle(SOLID_FILL, mauNen);
+    bar(0, 0, 1525, 777);
+    tieuDeLTC();
+    buttonBack();
+
+
+
+
+    setfillstyle(SOLID_FILL, BlueNhat);
+    bar(40, 243, 1490, 744);
+    vien(40, 1490, 243, 744);
+    buttonTien();
+    buttonLui();
+    //buttonLoc();
+   //buttonThoat();
+}
+
