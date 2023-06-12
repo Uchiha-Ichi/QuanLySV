@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Const.h"
+#include "Convert.h"
 
 class bang {
 private:
@@ -144,6 +145,79 @@ Table table_Lop() {
 
 	return newTable;
 }
+
+
+Table table_LTC() {
+	int numOfCols = 12;
+	Table newTable;
+	newTable.setCols(numOfCols);
+
+	int arrWidth[12] = { 70,100,100, 420, 100,70,70,70,70,70,100,100 }; // 100, 420
+	string arrName[12] = { "STT",
+								  "Ma lop",
+								  "Ma MH",
+								  "Ten mon hoc",
+								  "Khoa",
+								  "HK",
+								  "Nhom",
+								  "SL",
+								  "CL",
+								  "Min",
+								  "Huy",
+								  "Thao Tac" };
+
+	for (int i = 0; i < numOfCols; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		newTable.getCols(i)->setTen(convertStringToChar(arrName[i]));
+	}
+
+	return newTable;
+}
+
+Table table_DK() {
+	int numOfCols = 6;
+	Table newTable;
+	newTable.setCols(numOfCols);
+
+	int arrWidth[11] = { 80,200,350, 150, 250,300 }; // 100, 420
+	string arrName[11] = { "STT",
+								  "Ma SV",
+								  "Ho",
+								  "Ten",
+								  "SDT",
+								  "Lop",
+	};
+
+	for (int i = 0; i < numOfCols; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		newTable.getCols(i)->setTen(convertStringToChar(arrName[i]));
+	}
+
+	return newTable;
+}
+
+Table table_Diem1Lop() {
+	int numOfCols = 6;
+	Table newTable;
+	newTable.setCols(numOfCols);
+
+	int arrWidth[11] = { 70,150,300, 120, 200,100 }; // 100, 420
+	string arrName[11] = { "STT",
+								  "Ma SV",
+								  "Ho",
+								  "Ten",
+								  "Lop",
+								  "Diem",
+	};
+
+	for (int i = 0; i < numOfCols; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		newTable.getCols(i)->setTen(convertStringToChar(arrName[i]));
+	}
+
+	return newTable;
+}
+
 class UI {
 protected:
 	int left;
@@ -187,4 +261,3 @@ int main() {
 	return 0;
 }
 */
-

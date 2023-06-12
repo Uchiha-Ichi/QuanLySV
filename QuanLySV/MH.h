@@ -166,7 +166,7 @@ void treeMH::DeleteNode(Node* r) {
 }
 // check trung maMH
 bool treeMH::checkTrung(string maMH) {
-    Node*& tmp = getRoot();
+    Node* tmp = getRoot();
     while (tmp != NULL) {
         if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) < 0) {
             tmp = tmp->getLeft();

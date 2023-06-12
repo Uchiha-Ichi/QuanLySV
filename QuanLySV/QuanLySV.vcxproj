@@ -130,6 +130,8 @@
     <ClCompile Include="QuanLySV.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="DSDK.txt" />
+    <Text Include="DSLTC.txt" />
     <Text Include="LopSV.txt" />
     <Text Include="MH.txt" />
     <Text Include="SV.txt" />
@@ -138,6 +140,8 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Const.h" />
     <ClInclude Include="Convert.h" />
+    <ClInclude Include="DSDK.h" />
+    <ClInclude Include="DSLTC.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="LopSV.h" />
     <ClInclude Include="Menu.h" />
