@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 #include"Const.h"
 #include"Input.h"
