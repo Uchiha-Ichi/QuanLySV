@@ -54,6 +54,8 @@ public:
     // them mon hoc vao cay 
     void themNode(Node*& r, Subject& key, int& check);
     // xoa mon hoc
+    void moMH(string maMH);
+    Node* timMH(string maMH);
     Node* xoaNode(Node*& r, char* key);
     bool checkTrung(string maMH);
     int soNode(Node* r);
@@ -62,13 +64,15 @@ public:
     void xuatDataMH();
     //nhap cay vao mang de sau xep theo ten
     void nhapCayVaoMang(Subject arr[], Node* r, int& n);
+    void nhapMHMoVaoMang(Subject arr[], Node* r, int& n);
     void Swap(Subject& a, Subject& b);
-    void sortTheoTen(Subject arr[], int n);
+    int quick(Subject arr[], int batDau, int n);
+    void sortTheoTen(Subject arr[], int batDau, int n);
     void locMH(string s, Subject loc[], Subject arr[], int& soLuong, int n);
     void nhapMH(string str1, string str2, string str3, string str4, int check);
-    void nhapLocMH(char* s, int& t, thaoTac& hDMH);
+    void nhapLocMH(char* s, thaoTac& hDMH);
     void xuat1Trang(Subject arrMH[], int batDau, int ketThuc, Table Bang);
-    void xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hD, char* s, int& t, int& on);
+    void xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hD, char* s, int& on);
     void menuSetMH(int& on);
 
 };
@@ -209,6 +213,31 @@ void treeMH::themNode(Node*& r, Subject& key, int& check) {
         }
     }
 }
+// cap nhat mo MH
+void treeMH::moMH(string maMH) {
+    Node* tmp = timMH(maMH);
+    if (tmp == NULL) return;
+    else {
+        tmp->getData().setMoLop(true);
+        vietDataDSMH(soNode(getRoot()));
+    }
+}
+// tim MH
+Node* treeMH::timMH(string maMH) {
+    Node* tmp = getRoot();
+    while (tmp != NULL) {
+        if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) < 0) {
+            tmp = tmp->getLeft();
+        }
+        else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) > 0) {
+            tmp = tmp->getLeft();
+        }
+        else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) == 0) {
+            return tmp;
+        }
+    }
+    return NULL;
+}
 // xoa mon hoc
 Node* treeMH::xoaNode(Node*& r, char* maMH) {
 
@@ -269,18 +298,39 @@ void treeMH::nhapCayVaoMang(Subject arr[], Node* r, int& n) {
         nhapCayVaoMang(arr, r->getRight(), n);
     }
 }
+void treeMH::nhapMHMoVaoMang(Subject arr[], Node* r, int& n) {
+    if (r != NULL) {
+        nhapMHMoVaoMang(arr, r->getLeft(), n);
+        if (r != NULL) {
+            if (r->getData().getMoLop() == true) {
+                arr[n++] = r->getData();
+            }
+        }
+        nhapMHMoVaoMang(arr, r->getRight(), n);
+    }
+}
 void treeMH::Swap(Subject& a, Subject& b) {
     Subject tmp = a;
     a = b;
     b = tmp;
 }
-void treeMH::sortTheoTen(Subject arr[], int n) {
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = i + 1; j < n; j++) {
-            if (strcmp(arr[i].getTenMH(), arr[j].getTenMH()) > 0) {
-                Swap(arr[i], arr[j]);
-            }
+int treeMH::quick(Subject arr[], int batDau, int n) {
+    string pi = string(arr[n].getTenMH());
+    int i = batDau - 1;
+    for (int j = batDau; j < n; j++) {
+        if (strcmp(arr[j].getTenMH(), pi.c_str()) < 0) {
+            i++;
+            Swap(arr[i], arr[j]);
         }
+    }
+    swap(arr[i + 1], arr[n]);
+    return i + 1;
+}
+void treeMH::sortTheoTen(Subject arr[], int batDau, int n) {
+    if (batDau < n) {
+        int p = quick(arr, batDau, n);
+        sortTheoTen(arr, batDau, p - 1);
+        sortTheoTen(arr, p + 1, n);
     }
 }
 void treeMH::locMH(string s, Subject loc[], Subject arr[], int& soLuong, int n) {
@@ -443,7 +493,7 @@ void treeMH::xuat1Trang(Subject arrMH[], int batDau, int ketThuc, Table Bang) {
 }
 
 
-void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, int& t, int& on) {
+void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, int& on) {
     int x = -1, y = -1;
     int batDau = 0;
     int ketThuc = (tongSoDong >= maxDong) ? maxDong : tongSoDong;
@@ -465,6 +515,16 @@ void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, 
             clearmouseclick(WM_LBUTTONDOWN);
             if (tableLeft <= x && x <= tableRightMH && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
 
+
+                if (arrMH[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMoLop() == 1) {
+                    MessageBox(
+                        NULL,
+                        (LPCWSTR)convertCharArrayToLPCWSTR("MON HOC DA MO LOP KHONG THE XOA "),
+                        (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+                        MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+                    );
+                    continue;
+                }
                 int tmp = MessageBox(
                     NULL,
                     (LPCWSTR)convertCharArrayToLPCWSTR("BAN MUON XOA MON HOC"),
@@ -472,26 +532,17 @@ void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, 
                     MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
                 );
                 if (tmp == IDYES) {
-                    if (this->getRoot(), arrMH[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMoLop() == 1) {
-                        MessageBox(
-                            NULL,
-                            (LPCWSTR)convertCharArrayToLPCWSTR("MON HOC DA MO LOP KHONG THE XOA "),
-                            (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-                            MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
-                        );
-                        continue;
-                    }
-                    else {
-                        this->xoaNode(this->getRoot(), arrMH[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMaMH());
-                        int n = soNode(getRoot());
-                        vietDataDSMH(n);
-                        cleardevice();
+                    this->xoaNode(this->getRoot(), arrMH[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMaMH());
+                    int n = soNode(getRoot());
+                    // vietDataDSMH(n);
+                    cleardevice();
 
-                        break;
-                    }
+                    break;
                 }
 
             }
+
+
             else if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && trangHienTai > 1) {
 
                 batDau = batDau - maxDong;
@@ -516,26 +567,22 @@ void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, 
                 outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
             }
             else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-                t = 1;
                 hDMH = BACK;
                 break;
 
             }
             else if (1390 <= x && x <= 1490 && 169 <= y && y <= 214) {
                 hDMH = THEM;
-                t = 1;
                 break;
             }
             /*else if (1290 <= x && x <= 1380 && 150 <= y && y <= 190) {
                 buttonLoc(colorNen, colorText, true);
             }*/
             else if (183 <= x && x <= 559 && 169 <= y && y <= 205) {
-                t = 1;
-                nhapLocMH(s, t, hDMH);
+                nhapLocMH(s, hDMH);
                 break;
             }
             else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
-                t = 1;
                 hDMH = LOC;
                 break;
             }
@@ -578,7 +625,7 @@ void treeMH::xuatTrang(Subject*& arrMH, int tongSoDong, thaoTac& hDMH, char* s, 
 
 void treeMH::nhapMH(string str1, string str2, string str3, string str4, int check) {
     Input* input[4];
-    input[0] = new Input(str1, 2, "Ma Mon Hoc", 50, 0, 667, 1101, 240, 295, graynhat, 0, 3);
+    input[0] = new Input(str1, 2, "Ma Mon Hoc", 10, 0, 667, 1101, 240, 295, graynhat, 0, 3);
     input[1] = new Input(str2, 1, "Ten Mon Hoc", 50, 0, 667, 1101, 330, 385, graynhat, 0, 3);
     input[2] = new Input(str3, 3, "So TCTH", 2, 0, 667, 1101, 410, 465, graynhat, 0, 3);
     input[3] = new Input(str4, 3, "So TCLT", 2, 0, 667, 1101, 500, 555, graynhat, 0, 3);
@@ -649,48 +696,48 @@ void treeMH::nhapMH(string str1, string str2, string str3, string str4, int chec
                 else if (1057 <= x && x <= 1151 && 709 <= y && y <= 748) {
                     if (input[0]->checkRong() == true && input[1]->checkRong() == true && input[2]->checkRong() == true && input[3]->checkRong() == true) {
 
-                        
-                            //check = 0;
-                            MH.setMaMH((const char*)input[0]->chuanHoa(input[0]->getContent()));
-                            MH.setTenMH((const char*)input[1]->chuanHoa(input[1]->getContent()));
-                            MH.setTCLT(atoi(input[3]->getContent()));
-                            MH.setTCTH(atoi(input[2]->getContent()));
-                            if (MH.getTCLT() == 0 && MH.getTCTH() == 0) {
-                                MessageBox(
-                                    NULL,
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("TONG SO TIN CHU KHONG THE BANG 0"),
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-                                    MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
-                                );
-                                continue;
-                            }
-                            //xuatDataMH();
-                            themNode(getRoot(), MH, check);
-                            if (check == 1) {
-                                MessageBox(
-                                    NULL,
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("MA MON HOC DA BI TRUNG "),
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-                                    MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
-                                );
-                                check = 0;
-                                continue;
-                            }
-                            else {
-                                int tmp = MessageBox(
-                                    NULL,
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("BAN CO MUON LUU MON HOC"),
-                                    (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-                                    MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
-                                );
-                                if (tmp == IDYES) {
 
-                                    int n = soNode(getRoot());
-                                    vietDataDSMH(n);
-                                    break;
-                                }
+                        //check = 0;
+                        MH.setMaMH((const char*)input[0]->chuanHoa(input[0]->getContent()));
+                        MH.setTenMH((const char*)input[1]->chuanHoa(input[1]->getContent()));
+                        MH.setTCLT(atoi(input[3]->getContent()));
+                        MH.setTCTH(atoi(input[2]->getContent()));
+                        if (MH.getTCLT() == 0 && MH.getTCTH() == 0) {
+                            MessageBox(
+                                NULL,
+                                (LPCWSTR)convertCharArrayToLPCWSTR("TONG SO TIN CHU KHONG THE BANG 0"),
+                                (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+                                MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+                            );
+                            continue;
+                        }
+                        //xuatDataMH();
+                        themNode(getRoot(), MH, check);
+                        if (check == 1) {
+                            MessageBox(
+                                NULL,
+                                (LPCWSTR)convertCharArrayToLPCWSTR("MA MON HOC DA BI TRUNG "),
+                                (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+                                MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+                            );
+                            check = 0;
+                            continue;
+                        }
+                        else {
+                            int tmp = MessageBox(
+                                NULL,
+                                (LPCWSTR)convertCharArrayToLPCWSTR("BAN CO MUON LUU MON HOC"),
+                                (LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+                                MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
+                            );
+                            if (tmp == IDYES) {
+
+                                int n = soNode(getRoot());
+                                //vietDataDSMH(n);
+                                break;
                             }
-                        
+                        }
+
                     }
                     else {
                         MessageBox(
@@ -730,7 +777,7 @@ void treeMH::nhapMH(string str1, string str2, string str3, string str4, int chec
                         //xuatDataMH();
                         themNode(getRoot(), MH, check);
                         int n = soNode(getRoot());
-                        vietDataDSMH(n);
+                        // vietDataDSMH(n);
 
                         break;
                     }
@@ -755,7 +802,7 @@ void treeMH::nhapMH(string str1, string str2, string str3, string str4, int chec
     }
 }
 // button trong trang MH
-void treeMH::nhapLocMH(char* s, int& t, thaoTac& hDMH) {
+void treeMH::nhapLocMH(char* s, thaoTac& hDMH) {
     int tmp = strlen(s);
     if (tmp > 0 && s[0] == ' ') {
         tmp = 0;
@@ -777,7 +824,6 @@ void treeMH::nhapLocMH(char* s, int& t, thaoTac& hDMH) {
 
             if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
                 s[tmp] = '\0';
-                t = 1;
                 hDMH = BACK;
                 break;
 
@@ -785,12 +831,10 @@ void treeMH::nhapLocMH(char* s, int& t, thaoTac& hDMH) {
             else if (1390 <= x && x <= 1490 && 169 <= y && y <= 214) {
                 s[tmp] = '\0';
                 hDMH = THEM;
-                t = 1;
                 break;
             }
             else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
                 s[tmp] = '\0';
-                t = 1;
                 hDMH = LOC;
                 break;
             }
@@ -863,55 +907,25 @@ void treeMH::menuSetMH(int& on) {
     vien(183, 559, 169, 205);
 
     Subject MH;
-    xuatDataMH();
+    //xuatDataMH();
 
     Subject* mangMH = new Subject[100];
     Subject* arrMH = new Subject[100];
     int n = 0;
+    int m = 0;
     int soLuong = 0;
     nhapCayVaoMang(mangMH, getRoot(), n);
     locMH("", arrMH, mangMH, soLuong, n);
-    sortTheoTen(arrMH, n);
+    sortTheoTen(arrMH, m, n - 1);
     int x = -1, y = -1;
     bool active = false;
 
 
     thaoTac hDMH = XUAT;
-    int thaoTacRoi = 0;
 
     bool ok = 1;
     while (ok) {
         //delay(200);
-        if (thaoTacRoi == 0) {
-            if (ismouseclick(WM_LBUTTONDOWN)) {
-                getmouseclick(WM_LBUTTONDOWN, x, y);
-                clearmouseclick(WM_LBUTTONDOWN);
-                if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-                    hDMH = BACK;
-
-                }
-                else if (1390 <= x && x <= 1490 && 169 <= y && y <= 214) {
-                    hDMH = THEM;
-
-
-                }
-                /*else if (1290 <= x && x <= 1380 && 150 <= y && y <= 190) {
-                    buttonLoc(colorNen, colorText, true);
-                }*/
-                else if (183 <= x && x <= 559 && 169 <= y && y <= 205) {
-
-                    nhapLocMH(s, thaoTacRoi, hDMH);
-                }
-                else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
-
-                    hDMH = LOC;
-                }
-                else if (1400 <= x && x <= 1490 && 10 <= y && y <= 60) {
-                    on = 0;
-                    hDMH = BACK;
-                }
-            }
-        }
         switch (hDMH) {
         case XUAT: {
             cleardevice();
@@ -923,9 +937,9 @@ void treeMH::menuSetMH(int& on) {
             soLuong = 0;
             nhapCayVaoMang(mangMH, getRoot(), n);
             locMH("", arrMH, mangMH, soLuong, n);
-            sortTheoTen(arrMH, soLuong);
+            sortTheoTen(arrMH, m, soLuong - 1);
             outtextxy(183 + 5, (169 + 205 - textheight(s)) / 2, s);
-            xuatTrang(arrMH, soLuong, hDMH, s, thaoTacRoi, on);
+            xuatTrang(arrMH, soLuong, hDMH, s, on);
             break;
         }
         case LOC: {
@@ -938,9 +952,9 @@ void treeMH::menuSetMH(int& on) {
             soLuong = 0;
             nhapCayVaoMang(mangMH, getRoot(), n);
             locMH(string(s), arrMH, mangMH, soLuong, n);
-            sortTheoTen(arrMH, soLuong);
+            sortTheoTen(arrMH, m, soLuong - 1);
             outtextxy(183 + 5, (169 + 205 - textheight(s)) / 2, s);
-            xuatTrang(arrMH, soLuong, hDMH, s, thaoTacRoi, on);
+            xuatTrang(arrMH, soLuong, hDMH, s, on);
             break;
         }
         case THEM: {
@@ -955,11 +969,10 @@ void treeMH::menuSetMH(int& on) {
             soLuong = 0;
             nhapCayVaoMang(mangMH, getRoot(), n);
             locMH("", arrMH, mangMH, soLuong, n);
-            sortTheoTen(arrMH, n);
+            sortTheoTen(arrMH, m, n - 1);
             outtextxy(183 + 5, (169 + 205 - textheight(s)) / 2, s);
-            xuatTrang(arrMH, soLuong, hDMH, s, thaoTacRoi, on);
+            xuatTrang(arrMH, soLuong, hDMH, s, on);
             if (hDMH != BACK)  hDMH = XUAT;
-
             break;
         }
         case BACK: {
@@ -967,6 +980,7 @@ void treeMH::menuSetMH(int& on) {
             delete[] mangMH;
             cleardevice();
             ok = 0;
+            vietDataDSMH(soNode(getRoot()));
             break;
         }
         }

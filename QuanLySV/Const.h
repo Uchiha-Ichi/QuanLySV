@@ -121,14 +121,24 @@ char _huyLTC[] = { "HUY LTC" };
 char _dkTC[] = { "DANG KY TC" };
 char _xemDSSV[] = { "XEM DSSV" };
 char _dssv[] = { "DANH SACH SINH VIEN" };
-char _SV[] = { "SINH VIEN" };
+char _SV[] = { "SINH VIEN: " };
 char _dkLopTC[] = { "DANG KY LOP TIN CHI" };
 char _continue[] = { "TIEP TUC" };
+char _diemTK[] = { "DIEM TK" };
+char _diemTB[] = { "DIEM TB" };
+char _diem1SV[] = { "DIEM 1 SV" };
+char _suadiem[] = { "SUA DIEM" };
+char _bangdiem1lop[] = { "BANG DIEM 1 LOP" };
+char _xemdiem[] = { "Xem Diem" };
+char _xemdiem1SV[] = { "Xem Diem 1 SV" };
+char _bangDiem[] = { "BANG DIEM" };
+char _bangDiemTB1Lop[] = { "BANG THONG KE DIEM TRUNG BINH KHOA HOC" };
 //-------------------------Enum --------------------
-enum thaoTac { THEM, LOC, BACK, XUAT, SUA, HUY, XEM, DANGKY, XUATDK, THOAT, XEM_DSDK };
+enum thaoTac { THEM, LOC, BACK, XUAT, SUA, HUY, XEM, DANGKY, XUATDK, THOAT, XEM_DSDK, DIEM1SV, DIEMTB, DIEMTK };
 //-------------------------Trang --------------------
 
 int maxDong = 10;
+int maxMH = 5;
 int kcY = 35; // khoảng cách giữa y trên và y dưới 
 int tableTop = 280;
 int tableLeft = 100;

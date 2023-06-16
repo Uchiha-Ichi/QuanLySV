@@ -4,7 +4,6 @@
 #include "UI.h"
 #include "MH.h"
 #include"Input.h"
-#include "LopSV.h"
 #include "Button.h"
 
 class LopTC {
@@ -115,6 +114,8 @@ public:
 
 	int checkLopTheoKhoaVaHK_LTC(int khoa, int HK);
 
+	int checkLopDaDK(int vitri, string masv);
+
 	void writeData_LTC(LopTC* LTC, ofstream& fileOut);
 
 	void writeDataDS_LTC();
@@ -125,30 +126,49 @@ public:
 
 	void loadDataDS_DK();  // nondone
 
-	void test();
+	void nhapDiem(string str,int left,int right,int top ,int bottom,int viTriTC,int viTriSV);
 
 	void xuatDS1Trang_LTC(LopTC* loptc[], Subject arrMH[], int soLuongMH, int batDau, int ketThuc, Table Bang, int checkOut, string maSV);
 
-	void testtiep();
 
-	void xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, thaoTac& hDMH, char* s, int& thaoTacRoi);
+	void xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, thaoTac& hDLTC, char* s, int& thaoTacRoi, DSSV sv);
 
 	void inputNhapLTC(string str1, string str2, string str3, string str4,
-		string str5, string str6, string str7, int check, treeMH DSMH, int& viTriChon, thaoTac& hDDK);
+		string str5, string str6, string str7, int check, treeMH DSMH, int& viTriChon, thaoTac& hDLTC);
 
-	void dangKyTheoLTC(treeMH DSMH, string maSV, int khoa, int HK, thaoTac& hDDK, NodeSV* tmp);
+	void dangKyTheoLTC(treeMH DSMH, string maSV, int khoa, int HK, thaoTac& hDLTC);
 
-	void inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSLH dslop, thaoTac& hDDK);
+	void inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSSV sv, thaoTac& hDLTC);
 
 	void huyLTC(string str1, string str2, thaoTac& hDLTC);
 
-	void xuatDSDK(DSLH dslop);
+	void xuatDSDK(DSSV sv, thaoTac& hDLTC, treeMH DSMH);
 
-	void xuatDiem1Trang1LTC(LopTC* loptc, DSLH dslop, int batDau, int ketThuc, Table Bang, thaoTac& hDMH);
+	void xuatDiem1Trang1LTC(LopTC* loptc, DSSV sv, int batDau, int ketThuc, Table Bang, thaoTac& hDLTC);
 
-	void xuatDiemTheoTrang1LTC(LopTC* loptc, DSLH dslop, int tongSoDong, thaoTac& hDMH);
+	void xuatDiemTheoTrang1LTC(LopTC* loptc, DSSV sv, int tongSoDong, thaoTac& hDLTC);
 
-	void xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDMH);
+	void xuatDiemLTC(treeMH DSMH, DSSV sv, int tongSoDong, thaoTac& hDLTC);
+
+	void xuatDiem1Trang1SV(LopTC* loptc[], Subject arrMH[], int soLuongMon, int batDau, int ketThuc, Table Bang, string maSV);
+
+	void xuatDiemTheoTrang1SV(LopTC* loptc[], treeMH DSMH, int tongSoDong, thaoTac& hDLTC, string masv, string hoTen);
+
+	void xuatDiem1SV(treeMH DSMH, DSSV sv, thaoTac& hDMH);
+
+	void xuatDiemTB(treeMH DSMH, DSSV sv);
+
+	/*void xuat1TrangDiem(NodeLop* lop, int batDau, int ketThuc, Table newTable);
+
+	void xuatDiemTB1Lop(NodeSV* sv, int n);*/
+
+	void xuat1TrangDiemTB1Lop(NodeSV* sv, int batDau, int ketThuc, Table newTable);
+
+	float diemMax1Mon(string monHoc, string maSV);
+
+	void xuatDiemTK(treeMH DSMH, DSSV sv);
+
+	void xuat1TrangDiemTK1Lop(NodeSV* sv, int batDau, int ketThuc, Table newTable, int& nhan, Subject* arr, int batDauMH, int ktMH, int tongSoTrang, int tongSoMH);
 
 	void freeDS_LTC();
 
@@ -171,7 +191,7 @@ LopTC::LopTC() {
 	this->SVMAX = 0;
 	this->huyLop = true;
 	this->soSVDK = 0;
-	//this->dsdk ;
+
 }
 
 void LopTC::setMaLopTC(int maLopTC) {
@@ -338,19 +358,18 @@ void DSLTC::update_LTC(LopTC* LTC, int viTri) {
 
 bool DSLTC::checkSVDK_LTC(int maLopTC, string maSV) {
 	int vt = 0;
-	for (; vt < n && this->lopTC[vt]->getMaLopTC() != maLopTC; vt++);
+	for (; vt < n && this->lopTC[vt]->getMaLopTC() != maLopTC; vt++) {
+		if (lopTC[vt]->getMaLopTC() == maLopTC) {
+			return this->lopTC[vt]->getDSDK().checkSV_DK(maSV);
+		}
+	}
 
-	if (lopTC[vt]->getMaLopTC() == maLopTC)
-		return this->lopTC[vt]->getDSDK().checkSV_DK(maSV);
 
 	return false;
 }
 
 bool DSLTC::checkDK_LTC(int viTri, string maSV) {
-
-	if (viTri < n) {
-		return this->lopTC[viTri]->getDSDK().checkSV_DK(maSV);
-	}
+	return this->lopTC[viTri]->getDSDK().checkSV_DK(maSV);
 
 	return false;
 }
@@ -385,7 +404,10 @@ int DSLTC::xoa_LTC(int maLopTC) {
 
 void DSLTC::dk_LTC(int viTri, SVDangKy sv) {
 	if (viTri < n) {
-
+		if (this->lopTC[viTri]->getSoSVDK() == 0) {
+			DSDK SV(this->lopTC[viTri]->getSVMax());
+			lopTC[viTri]->setDSDK(SV);
+		}
 		this->lopTC[viTri]->getDSDK().them_DK(sv);
 		this->lopTC[viTri]->setSoSVDK(this->lopTC[viTri]->getSoSVDK() + 1);
 
@@ -428,7 +450,6 @@ int DSLTC::checkTrungDS_LTC(LopTC* ltc, int viTri) {
 int DSLTC::checkLopTheoKhoaVaHK_LTC(int khoa, int HK) {
 	for (int i = 0; i < n; i++) {
 
-		//	lopTC[i]->getDSDK()
 		if (this->lopTC[i]->getNienKhoa() == khoa && this->lopTC[i]->getHocKy() == HK)
 			return i;
 	}
@@ -436,12 +457,32 @@ int DSLTC::checkLopTheoKhoaVaHK_LTC(int khoa, int HK) {
 	return  -1;
 }
 
+int DSLTC::checkLopDaDK(int viTri, string masv) {
+	for (int i = 0; i < n; i++) {
+		if (viTri != i && lopTC[i]->getMaMH() == lopTC[viTri]->getMaMH() &&
+			lopTC[i]->getNienKhoa() == lopTC[viTri]->getNienKhoa() && lopTC[i]->getHocKy() == lopTC[viTri]->getHocKy() && lopTC[i]->getSoSVDK() > 0) {
+			if (checkDK_LTC(i, masv) == true) return lopTC[i]->getNhom();
+		}
+	}
+	return -1;
+}
+
 
 void DSLTC::huyLopTCTheoKhoaVaHK_LTC(int khoa, int HK) {
 	for (int i = 0; i < n; i++) {
-		if (this->lopTC[i]->getNienKhoa() == khoa && this->lopTC[i]->getHocKy() == HK)
+		if (this->lopTC[i]->getNienKhoa() == khoa && this->lopTC[i]->getHocKy() == HK && lopTC[i]->getSoSVDK() < lopTC[i]->getSVMin()) {
 			this->lopTC[i]->huyLopTC();
+			this->lopTC[i]->getDSDK().free_DSDK();
+		}
+
 	}
+	MessageBox(
+		NULL,
+		(LPCWSTR)convertCharArrayToLPCWSTR("DA HUY CAC LOP TIN CHI KHONG DU DIEU KIEN MO"),
+		(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+		MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+	);
+
 }
 
 
@@ -497,19 +538,7 @@ void DSLTC::writeDataDS_DK() {
 			nSV = lopTC[i]->getSoSVDK();
 			lopTC[i]->getDSDK().writeData_DK(maLopTC, fileOut);
 
-			/*
-			SVDangKy** SV;// = lopTC[i]->getDSDK().getSV();
-			int maLopTC = lopTC[i]->getMaLopTC();
-			int nSV = lopTC[i]->getDSDK().getN_DK();
-			for (int j = 0; j < nSV; j++) {
-				if (SV[j]->getMaSV() != "") {
-					fileOut << maLopTC << "," << SV[j]->getMaSV() << "," << SV[j]->getDiem();
-					if (j != nSV - 1 || i != n - 1) {
-						fileOut << "\n";
-					}
-				}
-			}
-			*/
+
 		}
 		fileOut.close();
 	}
@@ -527,8 +556,7 @@ void DSLTC::loadDataDS_LTC() {
 
 
 		fileIn >> soLuong;
-		//	fileIn >> temp;
-			//while (!fileIn.eof()) {
+
 		for (int i = 0; i < soLuong; i++) {
 			lopTC[n] = new LopTC;
 			fileIn >> tempInt;	lopTC[n]->setMaLopTC(tempInt); //cout << tempInt << " ";
@@ -547,10 +575,7 @@ void DSLTC::loadDataDS_LTC() {
 			fileIn >> temp;
 			fileIn >> tempInt; lopTC[n]->setTrangThai(bool(tempInt)); //cout << tempInt << " ";
 
-			//	SVDangKy svdk;
-			//	lopTC[n]->getDSDK().them_DK(svdk);
 
-				//them_LTC(lopTC[n]);
 			this->n++;
 			if (fileIn.eof()) break;
 
@@ -571,8 +596,6 @@ void DSLTC::loadDataDS_DK() {
 
 		while (!fileIn.eof()) {
 			fileIn >> maLop;
-			//	viTriLop = this->tim_LTC(maLop);
-			//	if (viTriLop != -1) {
 			viTriLop = this->tim_LTC(maLop);
 			fileIn >> temp;
 			SVDangKy sv;
@@ -584,14 +607,8 @@ void DSLTC::loadDataDS_DK() {
 
 			if (this->lopTC[viTriLop]->getDSDK().checkSV_DK(sv.getMaSV())) continue;
 
-			//NodeDK* DK = new NodeDK(sv);
-
 			this->lopTC[viTriLop]->getDSDK().them_DK(sv);
 			this->lopTC[viTriLop]->setSoSVDK(this->lopTC[viTriLop]->getSoSVDK() + 1);
-			//	}
-			//	else {
-			//		fileIn >> temp; getline(fileIn, tempStr, ','); fileIn >> tempFloat;
-			//	}
 
 
 			if (fileIn.eof()) break;
@@ -603,26 +620,6 @@ void DSLTC::loadDataDS_DK() {
 	fileIn.close();
 }
 
-
-
-// test doc file
-void DSLTC::test() {
-
-
-	//LopTC ltc[100];
-	loadDataDS_LTC();
-	for (int i = 0; i < n; i++) {
-		cout << lopTC[i]->getMaLopTC() << " | ";
-		cout << lopTC[i]->getMaMH() << " | ";
-		cout << lopTC[i]->getNienKhoa() << " | ";
-		cout << lopTC[i]->getHocKy() << " | ";
-		cout << lopTC[i]->getNhom() << " | ";
-		cout << lopTC[i]->getSVMax() << " | ";
-		cout << lopTC[i]->getSVMin() << " | ";
-		cout << lopTC[i]->getTrangThai() << endl;
-	}
-
-}
 
 
 void DSLTC::xuatDS1Trang_LTC(LopTC* loptc[], Subject arrMH[], int soLuongMH, int batDau, int ketThuc, Table Bang, int checkOut, string masv) {
@@ -690,9 +687,16 @@ void DSLTC::xuatDS1Trang_LTC(LopTC* loptc[], Subject arrMH[], int soLuongMH, int
 				convertStringToChar(string((Bang.getCols(10)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
 			x += Bang.getCols(10)->getChieuRong();
 
+			//		outtextxy(x, y ,
+				//		convertStringToChar(string((Bang.getCols(11)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+				//	khoangTrang(x, y - kcY + textheight(convertStringToChar(strSTT)), x + Bang.getCols(11)->getChieuRong(), y + textheight(convertStringToChar(strSTT)));
+
+
 			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
 				convertStringToChar(string((Bang.getCols(11)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
-			x += Bang.getCols(11)->getChieuRong();
+
+
+
 
 			continue;
 		}
@@ -796,7 +800,7 @@ void DSLTC::xuatDS1Trang_LTC(LopTC* loptc[], Subject arrMH[], int soLuongMH, int
 		setbkcolor(BlueNhat); setcolor(Red); settextstyle(10, 0, 1);
 		if (checkOut == 1) {
 			string textDK = "Da DK";
-			//checkDK_LTC(tim_LTC(loptc[i]->getMaLopTC()),masv)
+
 			if (checkDK_LTC(tim_LTC(loptc[i]->getMaLopTC()), masv) == true) {
 				outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar(textDK)) / 2), y, convertStringToChar(textDK));
 
@@ -804,59 +808,33 @@ void DSLTC::xuatDS1Trang_LTC(LopTC* loptc[], Subject arrMH[], int soLuongMH, int
 
 		}
 		else if (checkOut == 2) {
-			string textDiem = "Xem Diem";
-			outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar(textDiem)) / 2), y, convertStringToChar(textDiem));
+			if (lopTC[i]->getSoSVDK() > 0 && lopTC[i]->getDSDK().getDiemSV(0) >= 0) {
+				outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar("Xem Diem")) / 2), y, convertStringToChar("Xem Diem"));
 
+			}
+			else if (lopTC[i]->getSoSVDK() >= lopTC[i]->getSVMin() && lopTC[i]->getDSDK().getDiemSV(0) < 0) {
+				outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar("Nhap Diem")) / 2), y, convertStringToChar("Nhap Diem"));
+
+			}
+		}
+		else {
+
+			outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar("Xem DSSV")) / 2), y, convertStringToChar("Xem DSSV"));
+
+			//string textXemDSSV = "Xem DSSV";
+			//outtextxy(x + (Bang.getCols(11)->getChieuRong() / 2 - textwidth(convertStringToChar(textXemDSSV)) / 2), y, convertStringToChar(textXemDSSV));
+			// (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+			//buttonXemDSSV(x, y - kcY + textheight(convertStringToChar(strSTT)), x + Bang.getCols(11)->getChieuRong(), y + textheight(convertStringToChar(strSTT)));
 		}
 
-
-		x = tableLeft;
 	}
-
-
-
 
 }
 
 
 
 
-
-void DSLTC::testtiep() {
-
-	int a; string b;
-	bool c;
-	int abc;
-	cout << "Nhap so luong lop muon them: "; cin >> abc;
-	n = 0;
-	while (abc--) {
-		lopTC[n] = new LopTC();
-		cout << "Nhap ma mon hoc: ";
-		cin >> b; lopTC[n]->setMaMH(b);
-		cout << "Nhap nien khoa: ";
-		cin >> a; lopTC[n]->setNienKhoa(a);
-		cout << "Nhap hoc ki: ";
-		cin >> a; lopTC[n]->setHocKy(a);
-		cout << "Nhap nhom: ";
-		cin >> a; lopTC[n]->setNhom(a);
-		cout << "Nhap so sinh vien max: ";
-		cin >> a; lopTC[n]->setSVMax(a);
-		cout << "Nhap so sinh vien min: ";
-		cin >> a; lopTC[n]->setSVMin(a);
-		cout << "Nhap trang thai: ";
-		cin >> c; lopTC[n]->setTrangThai(c);
-		n++;
-	}
-	writeDataDS_LTC();
-
-
-
-}
-
-
-
-
-void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, thaoTac& hDLTC, char* s, int& thaoTacRoi) {
+void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, thaoTac& hDLTC, char* s, int& thaoTacRoi, DSSV sv) {
 	int checkOut = 0; string masv = "";
 	int nFilter = n; int soLuongMH = 0;
 	soLuongMH = DSMH.soNode(DSMH.getRoot());
@@ -887,8 +865,6 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 
 
 	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
-	//setbkcolor(BACKGROUND_TABLE); setcolor(black); mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-	//outtextxy((670 + 770) / 2 - textwidth(convertStringToChar(str)) / 2, (700 + 670) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 	setbkcolor(BlueNhat); setcolor(Den);
 	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 
@@ -902,22 +878,33 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 			getmouseclick(WM_LBUTTONDOWN, x, y);
 			clearmouseclick(WM_LBUTTONDOWN);
 			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
+				int viTri = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
 
-				int tmp = MessageBox(
-					NULL,
-					(LPCWSTR)convertCharArrayToLPCWSTR("BAN MUON XOA LOP TIN CHI?"),
-					(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-					MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
-				);
-				if (tmp == IDYES) {
-
-					this->xoa_LTC(lopTC[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong]->getMaLopTC());
-					cleardevice();
-					writeDataDS_LTC();
-					//	xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable);
-
-					break;
+				if (lopTC[viTri]->getSoSVDK() > 0) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("KHONG THE XOA LOP DA CO SINH VIEN DANG KY !!!"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
 				}
+				else {
+					int tmp = MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("BAN MUON XOA LOP TIN CHI?"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
+					);
+					if (tmp == IDYES) {
+
+						this->xoa_LTC(lopTC[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong]->getMaLopTC());
+
+						//	writeDataDS_LTC();
+
+						break;
+					}
+				}
+
 
 			}
 			else if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && trangHienTai > 1) {
@@ -961,24 +948,47 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 				thaoTacRoi = 1;
 				break;
 			}
-			else if (183 <= x && x <= 559 && 169 <= y && y <= 205) {
-				thaoTacRoi = 1;
-				//nhapLocMH(s, t, hDMH);
-				break;
-			}
-			else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
-				thaoTacRoi = 1;
-				hDLTC = LOC;
-				break;
-			}
 			else if (1359 <= x && x <= 1490 && 169 <= y && y <= 214) {
 				hDLTC = XUATDK;
 				break;
 			}
-			// theem thao tac thi lafm o day 
+
 
 			else if (tableRightLopTC < x && x <= 1440 && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
-				//lopTC[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong]->getMaLopTC()        này là công thức để lấy giá trị mà mình đang trỏ chuột vào 
+				int indexXemDiem = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+				if (lopTC[indexXemDiem]->getSoSVDK() == 0) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("CHUA CO SINH VIEN DANG KY !!! "),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+					break;
+				}
+				else {
+					int index = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+					int maLop = lopTC[index]->getMaLopTC();
+					int viTriMH;
+					for (int j = 0; j < soLuongMH; j++) {
+						if (arrMH[j].getMaMH() == lopTC[index]->getMaMH()) {
+							viTriMH = j; break; //j = soLuongMH;
+						}
+					}
+					string monHoc(arrMH[viTriMH].getTenMH());
+					cleardevice();
+					buttonBack();
+					tieuDeDSSV();
+					_menuxemDSSV();
+					int xoa = 0;
+					DSSV1LTC(convertIntToString(maLop), monHoc, convertIntToString(lopTC[index]->getSoSVDK()), convertIntToString(lopTC[index]->getNienKhoa()),
+						convertIntToString(lopTC[index]->getHocKy()), convertIntToString(lopTC[index]->getNhom()));
+					// " danh sach sinh vien" ....
+					lopTC[indexXemDiem]->getDSDK().xuatDSTrang_DK(sv, lopTC[indexXemDiem]->getSoSVDK(), hDLTC, xoa);
+					lopTC[indexXemDiem]->setSoSVDK(lopTC[indexXemDiem]->getSoSVDK() - xoa);
+					//writeDataDS_DK();
+					//writeDataDS_LTC();
+					break;
+				}
 			}
 		}
 		else if (ismouseclick(WM_RBUTTONDOWN)) {
@@ -988,6 +998,16 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
 
 				viTriChon = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+				if (lopTC[viTriChon]->getSoSVDK() > 0 && lopTC[viTriChon]->getDSDK().getDiemSV(0) > 0) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("LOP DA NHAP DIEM. KHONG THE SUA !!!"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+					hDLTC = XUAT;
+					break;
+				}
 				menuSuaLTC();
 
 				inputNhapLTC(convertIntToString(lopTC[viTriChon]->getMaLopTC()), lopTC[viTriChon]->getMaMH(), convertIntToString(lopTC[viTriChon]->getNienKhoa()),
@@ -1000,20 +1020,7 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 		}
 
 	}
-	/*
 
-	for (int i = 0; i < n; i++) {
-		//loptc[i] = new LopTC();
-		if (loptc[i] != nullptr) {
-		delete loptc[i];
-		loptc[i] = nullptr;
-	}
-	}
-	//	delete loptc[i];
-	//	lop[i] = nullptr;
-	//}
-
-	*/
 	delete[] arrMH;
 	newTable.freeTable();
 }
@@ -1022,6 +1029,17 @@ void DSLTC::xuatDSTheoTrang_LTC(treeMH DSMH, int& viTriChon, int tongSoDong, tha
 
 void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 	string str5, string str6, string str7, int check, treeMH DSMH, int& viTriChon, thaoTac& hDDK) {
+
+	if (check == 0 && n == MAX_LOPTC) {
+		MessageBox(
+			NULL,
+			(LPCWSTR)convertCharArrayToLPCWSTR("DANH SACH DA DAY. KHONG THE THEM LOP !!!"),
+			(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+			MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+		);
+		hDDK = XUAT;
+		return;
+	}
 
 	int nInput = 7;
 	Input* input[7];
@@ -1033,15 +1051,15 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 	}
 
 
-	//if (check == 0) str1 = convertIntToString(getMaxN());
+
 
 	input[0] = new Input(str1, 3, "Ma Lop", 50, 0, 600, 1100, 200, 240, graynhat, 0, 3);
 	input[1] = new Input(str2, 2, "Ma Mon Hoc", 50, 0, 600, 1100, 270, 310, graynhat, 0, 3);
 	input[2] = new Input(str3, 3, "Nien Khoa", 4, 0, 600, 1100, 340, 380, graynhat, 0, 3);
 	input[3] = new Input(str4, 3, "Hoc Ky", 1, 0, 600, 1100, 410, 450, graynhat, 0, 3);
 	input[4] = new Input(str5, 3, "Nhom", 2, 0, 600, 1100, 480, 520, graynhat, 0, 3);
-	input[5] = new Input(str6, 3, "SL Min", 3, 0, 600, 1100, 550, 590, graynhat, 0, 3);
-	input[6] = new Input(str7, 3, "SL Max", 3, 0, 600, 1100, 620, 660, graynhat, 0, 3);
+	input[5] = new Input(str6, 3, "SL Min", 4, 0, 600, 1100, 550, 590, graynhat, 0, 3);
+	input[6] = new Input(str7, 3, "SL Max", 4, 0, 600, 1100, 620, 660, graynhat, 0, 3);
 
 	int x = -1; int y = -1;
 	input[0]->draw();
@@ -1067,23 +1085,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 					);
-					/*
-					input[0]->setCheck(true);
-					input[1]->setCheck(false);
-					input[2]->setCheck(false);
-					input[3]->setCheck(false);
-					input[4]->setCheck(false);
-					input[5]->setCheck(false);
-					input[6]->setCheck(false);
 
-					input[0]->addChar();
-					input[1]->draw();
-					input[2]->draw();
-					input[3]->draw();
-					input[4]->draw();
-					input[5]->draw();
-					input[6]->draw();
-					*/
 				}
 				else if (600 <= x && x <= 1100 && 270 <= y && y <= 310) {
 					input[0]->setCheck(false);
@@ -1209,8 +1211,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 						input[5]->checkRong() == true && input[6]->checkRong() == true) {
 						bool good = 0;
 						lop->setMaLopTC(atoi(input[0]->getContent()));
-						//lop->setMaLopTC(abc);
-					//	cout << lop->getMaLopTC();
+
 						lop->setMaMH(input[1]->getContentStr());
 						lop->setNienKhoa(atoi(input[2]->getContent()));
 						lop->setHocKy(atoi(input[3]->getContent()));
@@ -1218,7 +1219,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 						lop->setSVMin(atoi(input[5]->getContent()));
 						lop->setSVMax(atoi(input[6]->getContent()));
 						lop->setTrangThai(good);
-						//lop->setSoSVDK(check);
+
 
 
 						int nien_khoa = checkTrungDS_LTC(lop, -1);
@@ -1267,25 +1268,24 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 									(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 									MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 								);
-								writeDataDS_LTC();
+								//writeDataDS_LTC();
 								break;
 							}
 
 						}
 
 					}
+					else {
+						MessageBox(
+							NULL,
+							(LPCWSTR)convertCharArrayToLPCWSTR("VUI LONG NHAP DAY DU THONG TIN "),
+							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+						);
+						continue;
+					}
 				}
-				/*
-				else {
-					MessageBox(
-						NULL,
-						(LPCWSTR)convertCharArrayToLPCWSTR("VUI LONG NHAP DAY DU THONG TIN "),
-						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
-						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
-					);
 
-				}
-				*/
 			}
 		}
 	}
@@ -1305,23 +1305,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(true);
-						input[1]->setCheck(false);
-						input[2]->setCheck(false);
-						input[3]->setCheck(false);
-						input[4]->setCheck(false);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->addChar();
-						input[1]->draw();
-						input[2]->draw();
-						input[3]->draw();
-						input[4]->draw();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 					}
 					else if (600 <= x && x <= 1100 && 270 <= y && y <= 310) {
 						MessageBox(
@@ -1330,23 +1314,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(false);
-						input[1]->setCheck(true);
-						input[2]->setCheck(false);
-						input[3]->setCheck(false);
-						input[4]->setCheck(false);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->draw();
-						input[1]->addChar();
-						input[2]->draw();
-						input[3]->draw();
-						input[4]->draw();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 					}
 					else if (600 <= x && x <= 1100 && 340 <= y && y <= 380) {
 						MessageBox(
@@ -1355,23 +1323,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(false);
-						input[1]->setCheck(false);
-						input[2]->setCheck(true);
-						input[3]->setCheck(false);
-						input[4]->setCheck(false);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->draw();
-						input[1]->draw();
-						input[2]->addChar();
-						input[3]->draw();
-						input[4]->draw();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 					}
 					else if (600 <= x && x <= 1100 && 410 <= y && y <= 450) {
 						MessageBox(
@@ -1380,23 +1332,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(false);
-						input[1]->setCheck(false);
-						input[2]->setCheck(false);
-						input[3]->setCheck(true);
-						input[4]->setCheck(false);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->draw();
-						input[1]->draw();
-						input[2]->draw();
-						input[3]->addChar();
-						input[4]->draw();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 					}
 					else if (600 <= x && x <= 1100 && 480 <= y && y <= 520) {
 						MessageBox(
@@ -1405,23 +1341,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(false);
-						input[1]->setCheck(false);
-						input[2]->setCheck(false);
-						input[3]->setCheck(false);
-						input[4]->setCheck(true);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->draw();
-						input[1]->draw();
-						input[2]->draw();
-						input[3]->draw();
-						input[4]->addChar();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 
 					}
 					else if (600 <= x && x <= 1100 && 550 <= y && y <= 590) {
@@ -1470,23 +1390,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 							MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 						);
-						/*
-						input[0]->setCheck(true);
-						input[1]->setCheck(false);
-						input[2]->setCheck(false);
-						input[3]->setCheck(false);
-						input[4]->setCheck(false);
-						input[5]->setCheck(false);
-						input[6]->setCheck(false);
 
-						input[0]->addChar();
-						input[1]->draw();
-						input[2]->draw();
-						input[3]->draw();
-						input[4]->draw();
-						input[5]->draw();
-						input[6]->draw();
-						*/
 					}
 					else if (600 <= x && x <= 1100 && 270 <= y && y <= 310) {
 						input[0]->setCheck(false);
@@ -1652,7 +1556,7 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 						if (tmp == IDYES) {
 
 							this->update_LTC(lop, viTriChon);
-							writeDataDS_LTC();
+							//writeDataDS_LTC();
 							MessageBox(
 								NULL,
 								(LPCWSTR)convertCharArrayToLPCWSTR("SUA LOP TIN CHI THANH CONG !!!"),
@@ -1690,25 +1594,15 @@ void DSLTC::inputNhapLTC(string str1, string str2, string str3, string str4,
 
 
 
-/*
-	if (lop != nullptr) {
-		delete lop;
-		lop = nullptr;
-	}
-	*/
-	//}
 
 
-void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& hDDK, NodeSV* tmp) {
+
+void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& hDDK) {
 	int checkOut = 1;
 	int tongSoDong = 0;
 
-	string ho = tmp->getDataSV().getHo();
-	string ten = tmp->getDataSV().getTen();
-	ho = ho + " ";
-	ho = ho + ten;
-	_menuDKLTC(ho, _maSV);
-
+	_menuDKLTC();
+	maSV(_maSV);
 	// dem xem co bao nhieu ltc thoa man khoa, hk duoc nhap vao
 	for (int i = 0; i < n; i++) {
 		if (lopTC[i]->getNienKhoa() == khoa && lopTC[i]->getHocKy() == HK)
@@ -1739,6 +1633,7 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 	int tongSoTrang = tongSoDong / maxDong + soDu;
 	int trangHienTai = 1;
 	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+	settextstyle(10, 0, 1);
 	setbkcolor(BlueNhat); setcolor(Den);
 	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 	int batDau = 0;
@@ -1752,13 +1647,13 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 	int x, y; //char ch;
 	while (true) {
 		//delay(0.0000);
-		// Click event change page output
 		if (ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
 			clearmouseclick(WM_LBUTTONDOWN);
 
 			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
 				int index = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+				int nhom = checkLopDaDK(tim_LTC(loptc[index]->getMaLopTC()), _maSV);
 				if (checkSVDK_LTC(loptc[index]->getMaLopTC(), _maSV) == true) {
 					MessageBox(
 						NULL,
@@ -1774,6 +1669,17 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 						(LPCWSTR)convertCharArrayToLPCWSTR("LOP TIN CHI DA DAY !!!"),
 						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 						MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+				}
+				else if (nhom >= 0) {
+					string str1 = "SV DA DANG KY MON HOC NAY TAI NHOM ";
+					string str2 = convertIntToString(nhom);
+					str1 = str1 + str2;
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR(str1.c_str()),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 					);
 				}
 				else if (loptc[index]->getTrangThai() == 1) {
@@ -1805,13 +1711,13 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 
 
 						SVDangKy sv(_maSV);
-						//	SVDangKy* sv = new SVDangKy();
-						cout << " 0 ";
+
+
 						dkMH_LTC(loptc[index]->getMaLopTC(), sv);
-						//	cout << lopTC[index]->getDSDK().getSV()[0].getMaSV();
-						writeDataDS_DK();
-						writeDataDS_LTC();
-						//break;
+
+						//	writeDataDS_DK();
+							//writeDataDS_LTC();
+							//break;
 					}
 				}
 
@@ -1823,6 +1729,7 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 				trangHienTai--;
 				xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, _maSV);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				settextstyle(10, 0, 1);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 			}
@@ -1832,13 +1739,13 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 				trangHienTai++;
 				xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, _maSV);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				settextstyle(10, 0, 1);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 
 			}
 			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-				//on = 0;
-			//	delete arrMH;
+
 				hDDK = XUAT;
 				break;
 			}
@@ -1847,20 +1754,12 @@ void DSLTC::dangKyTheoLTC(treeMH DSMH, string _maSV, int khoa, int HK, thaoTac& 
 		}
 
 	}
-	/*
-	for (int i = 0; i < n; i++) {
-		//loptc[i] = new LopTC();
-		delete[] loptc[i];
-	}
-	*/
-
-
 
 
 }
 
 
-void DSLTC::inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSLH dslop, thaoTac& hDDK) {
+void DSLTC::inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSSV sv, thaoTac& hDDK) {
 	Input* input[3];
 	input[0] = new Input(str1, 2, "Ma SV", 15, 0, 570, 1100, 260, 310, graynhat, 0, 3);
 	input[1] = new Input(str2, 3, "Nien Khoa", 4, 0, 570, 1100, 360, 410, graynhat, 0, 3);
@@ -1915,11 +1814,6 @@ void DSLTC::inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSLH 
 				hDDK = XUAT;
 				break;
 			}
-			/*	else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-					hDDK = BACK;
-					break;
-				}
-				*/
 			else if (1057 <= x && x <= 1151 && 709 <= y && y <= 748) {
 				if (input[0]->checkRong() == true && input[1]->checkRong() == true && input[2]->checkRong() == true) {
 					ma_sv = input[0]->getContentStr();
@@ -1928,7 +1822,7 @@ void DSLTC::inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSLH 
 					cout << "ah0h0";
 					//				DSLH dslop;
 						//			dslop.xuatDSSV();
-					NodeSV* tmp = dslop.timDataSinhVien(ma_sv);
+					NodeSV* tmp = sv.timSV(ma_sv);
 					cout << "ahaha";
 					int check = checkLopTheoKhoaVaHK_LTC(nien_Khoa, hoc_Ky);
 
@@ -1953,9 +1847,9 @@ void DSLTC::inputDkLTC(treeMH DSMH, string str1, string str2, string str3, DSLH 
 					else {
 						cout << "siuuuuu";
 						cleardevice();
-						dangKyTheoLTC(DSMH, ma_sv, nien_Khoa, hoc_Ky, hDDK, tmp);
-						writeDataDS_DK();
-						writeDataDS_LTC();
+						dangKyTheoLTC(DSMH, ma_sv, nien_Khoa, hoc_Ky, hDDK);
+						//writeDataDS_DK();
+						//writeDataDS_LTC();
 						break;
 					}
 
@@ -2009,10 +1903,9 @@ void DSLTC::huyLTC(string str1, string str2, thaoTac& hDLTC) {
 				input[1]->addChar();
 			}
 
-			if (417 <= x && x <= 512 && 709 <= y && y <= 748) {
+			else if (417 <= x && x <= 512 && 709 <= y && y <= 748) {
 				// thoat nhap
 				break;
-				return;
 			}
 			else if (1057 <= x && x <= 1151 && 709 <= y && y <= 748) {
 				if (input[0]->checkRong() == true && input[1]->checkRong() == true) {
@@ -2038,15 +1931,14 @@ void DSLTC::huyLTC(string str1, string str2, thaoTac& hDLTC) {
 						);
 						if (tmp == IDYES) {
 							huyLopTCTheoKhoaVaHK_LTC(_khoa, _hocKy);
-							writeDataDS_LTC();
+							//writeDataDS_LTC();
 							break;
 						}
 					}
 
 
 				}
-
-				/*else {
+				else {
 					MessageBox(
 						NULL,
 						(LPCWSTR)convertCharArrayToLPCWSTR("VUI LONG NHAP DAY DU THONG TIN "),
@@ -2054,7 +1946,7 @@ void DSLTC::huyLTC(string str1, string str2, thaoTac& hDLTC) {
 						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 					);
 					continue;
-				}*/
+				}
 
 			}
 		}
@@ -2062,7 +1954,15 @@ void DSLTC::huyLTC(string str1, string str2, thaoTac& hDLTC) {
 }
 
 
-void DSLTC::xuatDSDK(DSLH dslop) {
+
+
+void DSLTC::xuatDSDK(DSSV sv, thaoTac& hDLTC, treeMH DSMH) {
+	int soLuongMH = 0;
+	soLuongMH = DSMH.soNode(DSMH.getRoot());
+	Subject* arrMH = new Subject[soLuongMH];
+	soLuongMH = 0;
+	DSMH.nhapCayVaoMang(arrMH, DSMH.getRoot(), soLuongMH);
+
 	string str1 = "";
 	int nInput = 1;
 	Input* input[1];
@@ -2079,11 +1979,6 @@ void DSLTC::xuatDSDK(DSLH dslop) {
 				input[0]->setCheck(true);
 				input[0]->addChar();
 			}
-			else if (417 <= x && x <= 512 && 709 <= y && y <= 848) {
-				//  huy
-				//
-				break;
-			}
 			else if (1035 <= x && x <= 1137 && 695 <= y && y <= 734) {
 				int maLop = atoi(input[0]->getContent());
 				if (tim_LTC(maLop) < 0) {
@@ -2095,7 +1990,7 @@ void DSLTC::xuatDSDK(DSLH dslop) {
 					);
 					continue;
 				}
-				else if (lopTC[tim_LTC(maLop)]->getDSDK().getN_DK() == 0) {
+				else if (lopTC[tim_LTC(maLop)]->getSoSVDK() == 0) {
 					MessageBox(
 						NULL,
 						(LPCWSTR)convertCharArrayToLPCWSTR("CHUA CO SINH VIEN DANG KY !!! "),
@@ -2105,17 +2000,33 @@ void DSLTC::xuatDSDK(DSLH dslop) {
 					break;
 				}
 				else {
+					int viTriMH = 0;
+					int viTriLTC = tim_LTC(maLop);
+					for (int j = 0; j < soLuongMH; j++) {
+						if (arrMH[j].getMaMH() == lopTC[viTriLTC]->getMaMH()) {
+							viTriMH = j; break; //j = soLuongMH;
+						}
+					}
+					string monHoc(arrMH[viTriMH].getTenMH());
 					cleardevice();
 					buttonBack();
 					tieuDeDSSV();
 					_menuxemDSSV();
+					DSSV1LTC(convertIntToString(maLop), monHoc, convertIntToString(lopTC[viTriLTC]->getSoSVDK()), convertIntToString(lopTC[viTriLTC]->getNienKhoa()),
+						convertIntToString(lopTC[viTriLTC]->getHocKy()), convertIntToString(lopTC[viTriLTC]->getNhom()));
 					// " danh sach sinh vien" ....
-					lopTC[tim_LTC(maLop)]->getDSDK().xuatDSTrang_DK(dslop, lopTC[tim_LTC(maLop)]->getDSDK().getN_DK());
+					int xoa = 0;
+					lopTC[viTriLTC]->getDSDK().xuatDSTrang_DK(sv, lopTC[viTriLTC]->getSoSVDK(), hDLTC, xoa);
+					lopTC[viTriLTC]->setSoSVDK(lopTC[viTriLTC]->getSoSVDK() - xoa);
+					//writeDataDS_DK();
+					//writeDataDS_LTC();
+
+					break;
+					//	hDLTC = XUAT;
 				}
 			}
-			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-				//on = 0;
-				//hDDK = BACK;
+			else if (417 <= x && x <= 512 && 709 <= y && y <= 748) {
+				hDLTC = XUAT;
 				break;
 			}
 
@@ -2126,7 +2037,7 @@ void DSLTC::xuatDSDK(DSLH dslop) {
 }
 
 
-void DSLTC::xuatDiem1Trang1LTC(LopTC* loptc, DSLH dslop, int batDau, int ketThuc, Table Bang, thaoTac& hDMH) {
+void DSLTC::xuatDiem1Trang1LTC(LopTC* loptc, DSSV sv, int batDau, int ketThuc, Table Bang, thaoTac& hDMH) {
 	int soDong = ketThuc % maxDong;
 	if (soDong == 0) soDong = maxDong;
 	if (ketThuc == 0 && batDau == 0) soDong = maxDong;
@@ -2166,7 +2077,6 @@ void DSLTC::xuatDiem1Trang1LTC(LopTC* loptc, DSLH dslop, int batDau, int ketThuc
 
 			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
 				convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
-			x += Bang.getCols(5)->getChieuRong();
 
 
 
@@ -2188,7 +2098,8 @@ void DSLTC::xuatDiem1Trang1LTC(LopTC* loptc, DSLH dslop, int batDau, int ketThuc
 
 		string maSV = loptc->getDSDK().getMaSVDK(i);
 		float diem = loptc->getDSDK().getDiemSV(i);
-		NodeSV* tmp = dslop.timDataSinhVien(maSV);
+		if (diem < 0) diem = 0;
+		NodeSV* tmp = sv.timSV(maSV);
 
 
 		// xoa MA SV
@@ -2238,7 +2149,7 @@ void DSLTC::xuatDiem1Trang1LTC(LopTC* loptc, DSLH dslop, int batDau, int ketThuc
 
 
 
-void DSLTC::xuatDiemTheoTrang1LTC(LopTC* loptc, DSLH dslop, int tongSoDong, thaoTac& hDLTC) {
+void DSLTC::xuatDiemTheoTrang1LTC(LopTC* loptc, DSSV sv, int tongSoDong, thaoTac& hDLTC) {
 
 
 	int soDu = (tongSoDong % maxDong > 0) ? 1 : 0;
@@ -2252,19 +2163,18 @@ void DSLTC::xuatDiemTheoTrang1LTC(LopTC* loptc, DSLH dslop, int tongSoDong, thao
 	Table newTable = table_Diem1Lop();
 	newTable.drawTable(maxDong);
 
-	xuatDiem1Trang1LTC(loptc, dslop, batDau, ketThuc, newTable, hDLTC);
+	xuatDiem1Trang1LTC(loptc, sv, batDau, ketThuc, newTable, hDLTC);
 
 
 
 	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
-	//setbkcolor(BACKGROUND_TABLE); setcolor(black); mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-	//outtextxy((670 + 770) / 2 - textwidth(convertStringToChar(str)) / 2, (700 + 670) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 	setbkcolor(BlueNhat); setcolor(Den);
 	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 
 	int x, y;
 	bool ok = true;
-
+	int viTriChon = 0;
+	int choClick = 0;
 	while (ok) {
 		//delay(200);
 		if (ismouseclick(WM_LBUTTONDOWN)) {
@@ -2276,7 +2186,7 @@ void DSLTC::xuatDiemTheoTrang1LTC(LopTC* loptc, DSLH dslop, int tongSoDong, thao
 				batDau = batDau - maxDong;
 				ketThuc = batDau + maxDong;
 				trangHienTai--;
-				xuatDiem1Trang1LTC(loptc, dslop, batDau, ketThuc, newTable, hDLTC);
+				xuatDiem1Trang1LTC(loptc, sv, batDau, ketThuc, newTable, hDLTC);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
@@ -2285,28 +2195,95 @@ void DSLTC::xuatDiemTheoTrang1LTC(LopTC* loptc, DSLH dslop, int tongSoDong, thao
 				batDau = batDau + maxDong;
 				ketThuc = (ketThuc + maxDong > tongSoDong) ? tongSoDong : ketThuc + maxDong;
 				trangHienTai++;
-				xuatDiem1Trang1LTC(loptc, dslop, batDau, ketThuc, newTable, hDLTC);
+				xuatDiem1Trang1LTC(loptc, sv, batDau, ketThuc, newTable, hDLTC);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 
 			}
 			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
-
-				hDLTC = BACK;
+				for (int i = 0; i < loptc->getSoSVDK(); i++) {
+					if (loptc->getDSDK().getDiemSV(i) < 0) {
+						loptc->getDSDK().suaDiemSV(i, 0);
+					}
+				}
+				hDLTC = XUAT;
 				break;
 
+			}
+			else if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
+				viTriChon = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+				choClick = (y - tableTop - kcY) / kcY;
+				outtextxy(1285, (choClick + 1) * kcY + tableTop+kcY/2,
+					convertStringToChar(string(90 / textwidth(convertStringToChar(string(" "))), ' ')));
+				//cout << choClick << " ";
+				nhapDiem(convertFloatToString(loptc->getDSDK().getDiemSV(viTriChon)),1300,1380,(choClick+1)*kcY+ tableTop+15, (choClick + 2) * kcY + tableTop,tim_LTC(loptc->getMaLopTC()), viTriChon);
+				xuatDiem1Trang1LTC(loptc, sv, batDau, ketThuc, newTable, hDLTC);
+			}
+
+		}
+		else if (ismouseclick(WM_RBUTTONDOWN)) {
+			getmouseclick(WM_RBUTTONDOWN, x, y);
+			clearmouseclick(WM_RBUTTONDOWN);
+			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
+				 viTriChon = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
+
+				hDLTC = XUAT;
+				break;
 			}
 		}
 	}
 
 
 }
+void DSLTC::nhapDiem(string str, int left, int right, int top, int bottom, int viTriLtc, int viTriSV) {
+	//menuNhapDiem();
+	if (str == "-1") str = "";
+	Input* input[1];
+	input[0] = new Input(str, 4, "", 3, 0, left, right, top, bottom, graynhat, 0, 3);
+	//input[0]->draw();
+
+
+	//input[1]->draw();
+	int x = -1; int y = -1;
+	float diem;
+	while (1) {
+		// delay(10);
 
 
 
+		input[0]->setCheck(true);
+		input[0]->addChar();
 
-void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC) {
+
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			clearmouseclick(WM_LBUTTONDOWN);
+			if (left > x || x > right || top > y || y > bottom) {
+				diem = input[0]->getContentFoat();
+				if (diem < 0) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("DIEM KHONG HOP LE"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+					continue;
+				}
+				else {
+
+					lopTC[viTriLtc]->getDSDK().suaDiemSV(viTriSV, diem);
+					break;
+				}
+
+			}
+		}
+	}
+}
+
+
+
+void DSLTC::xuatDiemLTC(treeMH DSMH, DSSV sv, int tongSoDong, thaoTac& hDLTC) {
 
 	int checkOut = 2; string masv = "";
 	int nFilter = n; int soLuongMH = 0;
@@ -2315,11 +2292,11 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 	soLuongMH = 0;
 	DSMH.nhapCayVaoMang(arrMH, DSMH.getRoot(), soLuongMH);
 
-	LopTC* loptc[MAX_LOPTC];// = { NULL };
-	for (int i = 0; i < n; i++) {
-		loptc[i] = new LopTC();
-		loptc[i] = this->lopTC[i];
-	}
+	//LopTC* loptc[MAX_LOPTC];
+	//for (int i = 0; i < n; i++) {
+	//	loptc[i] = new LopTC();
+	//	loptc[i] = this->lopTC[i];
+	//}
 
 
 	int soDu = (tongSoDong % maxDong > 0) ? 1 : 0;
@@ -2333,11 +2310,9 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 	Table newTable = table_LTC();
 	newTable.drawTable(maxDong);
 
-	xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
+	xuatDS1Trang_LTC(lopTC, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
 
 	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
-	//setbkcolor(BACKGROUND_TABLE); setcolor(black); mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-	//outtextxy((670 + 770) / 2 - textwidth(convertStringToChar(str)) / 2, (700 + 670) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 	setbkcolor(BlueNhat); setcolor(Den);
 	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 
@@ -2349,9 +2324,9 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 		if (ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
 			clearmouseclick(WM_LBUTTONDOWN);
-			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
+			if (1320 <= x && x <= 1420 && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
 				int index = (y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong;
-				if (loptc[index]->getSoSVDK() == 0) {
+				if (lopTC[index]->getSoSVDK() == 0) {
 					MessageBox(
 						NULL,
 						(LPCWSTR)convertCharArrayToLPCWSTR("LOP CHUA CO SINH VIEN DANG KY !"),
@@ -2359,17 +2334,32 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 					);
 				}
-				else if (loptc[index]->getDSDK().getDiemSV(0) < 0) {
+				else if (lopTC[index]->getSoSVDK()<lopTC[index]->getSVMin()) {
 					MessageBox(
 						NULL,
-						(LPCWSTR)convertCharArrayToLPCWSTR("LOP CHUA NHAP DIEM !"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("LOP CHUA DU DIEU KIEN NHAP DIEM!"),
 						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
 						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
 					);
 				}
 				else {
 					cleardevice();
-					xuatDiemTheoTrang1LTC(loptc[index], dslop, loptc[index]->getSoSVDK(), hDLTC);
+					int maLop = lopTC[index]->getMaLopTC();
+					int viTriMH = 0;
+					int viTriLTC = tim_LTC(maLop);
+					for (int j = 0; j < soLuongMH; j++) {
+						if (arrMH[j].getMaMH() == lopTC[viTriLTC]->getMaMH()) {
+							viTriMH = j; break; //j = soLuongMH;
+						}
+					}
+					string monHoc(arrMH[viTriMH].getTenMH());
+					menuXemDiem();
+
+					DSSV1LTC(convertIntToString(maLop), monHoc, convertIntToString(lopTC[viTriLTC]->getSoSVDK()), convertIntToString(lopTC[viTriLTC]->getNienKhoa()),
+						convertIntToString(lopTC[viTriLTC]->getHocKy()), convertIntToString(lopTC[viTriLTC]->getNhom()));
+					xuatDiemTheoTrang1LTC(lopTC[index], sv, lopTC[index]->getSoSVDK(), hDLTC);
+					hDLTC = XUAT;
+					break;
 
 
 				}
@@ -2381,7 +2371,7 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 				batDau = batDau - maxDong;
 				ketThuc = batDau + maxDong;
 				trangHienTai--;
-				xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
+				xuatDS1Trang_LTC(lopTC, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
@@ -2390,7 +2380,7 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 				batDau = batDau + maxDong;
 				ketThuc = (ketThuc + maxDong > tongSoDong) ? tongSoDong : ketThuc + maxDong;
 				trangHienTai++;
-				xuatDS1Trang_LTC(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
+				xuatDS1Trang_LTC(lopTC, arrMH, soLuongMH, batDau, ketThuc, newTable, checkOut, masv);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
 				setbkcolor(BlueNhat); setcolor(Den);
 				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
@@ -2402,28 +2392,21 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 				break;
 
 			}
-			else if (850 <= x && x <= 990 && 169 <= y && y <= 214) {
-				hDLTC = THEM;
+			else if (1010 <= x && x <= 1150 && 169 <= y && y <= 214) {
+				hDLTC = DIEM1SV;
 				break;
 			}
-			else if (1010 <= x && x <= 1150 && 169 <= y && y <= 214) {
-				hDLTC = HUY;
+			else if (1350 <= x && x <= 1490 && 169 <= y && y <= 214) {
+				hDLTC = DIEMTK;
+				break;
+			}
+
+			else if (1359 <= x && x <= 1490 && 169 <= y && y <= 214) {
+				hDLTC = XUATDK;
 				break;
 			}
 			else if (1170 <= x && x <= 1330 && 169 <= y && y <= 214) {
-				hDLTC = DANGKY;
-				break;
-			}
-			else if (183 <= x && x <= 559 && 169 <= y && y <= 205) {
-				//nhapLocMH(s, t, hDMH);
-				break;
-			}
-			else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
-				hDLTC = LOC;
-				break;
-			}
-			else if (1359 <= x && x <= 1490 && 169 <= y && y <= 214) {
-				hDLTC = XUATDK;
+				hDLTC = DIEMTB;
 				break;
 			}
 		}
@@ -2432,18 +2415,833 @@ void DSLTC::xuatDiemLTC(treeMH DSMH, DSLH dslop, int tongSoDong, thaoTac& hDLTC)
 	newTable.freeTable();
 }
 
+void DSLTC::xuatDiem1Trang1SV(LopTC* loptc[], Subject arrMH[], int soLuongMon, int batDau, int ketThuc, Table Bang, string maSV) {
+
+	int soDong = ketThuc % maxDong;
+	if (soDong == 0) soDong = maxDong;
+	if (ketThuc == 0 && batDau == 0) soDong = maxDong;
+	else {
+		int soDongTrong = maxDong - ketThuc % maxDong;
+		soDong = ketThuc % maxDong == 0 ? ketThuc : ketThuc + soDongTrong;
+	}
+
+	string strSTT;	string trangThai = "TRUE"; int viTriMH = 0;
+	int x = tableLeft;
+	int y = tableTop + kcY / 2 - textheight(convertStringToChar(strSTT)) / 2;
+	setbkcolor(BlueNhat); setcolor(Den); settextstyle(10, 0, 1);
 
 
+	for (int i = batDau; i < soDong; i++) {
+		y += kcY;
+		if (i >= ketThuc) {
+			x = tableLeft;
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(0)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(1)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(2)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(3)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(4)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(5)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(6)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(6)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(7)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(7)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(8)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(8)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+				convertStringToChar(string((Bang.getCols(9)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(9)->getChieuRong();
+
+			continue;
+		}
+
+
+		strSTT = convertIntToString(i + 1);
+
+		x = tableLeft;
+
+		// xoa STT cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat STT moi
+		outtextxy(x + (Bang.getCols(0)->getChieuRong() / 2 - textwidth(convertStringToChar(strSTT)) / 2), y, convertStringToChar(strSTT));
+		x += Bang.getCols(0)->getChieuRong();
+
+		// xoa MA LOP
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat MA LOP moi
+		outtextxy(x + (Bang.getCols(1)->getChieuRong() / 2 - textwidth(convertIntToChar(loptc[i]->getMaLopTC())) / 2), y, convertIntToChar(loptc[i]->getMaLopTC()));
+		x += Bang.getCols(1)->getChieuRong();
+
+
+		// xoa MA MON HOC cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat MA MON HOC moi
+		outtextxy(x + (Bang.getCols(2)->getChieuRong() / 2 - textwidth(convertStringToChar(loptc[i]->getMaMH())) / 2), y, convertStringToChar(loptc[i]->getMaMH()));
+		x += Bang.getCols(2)->getChieuRong();
+
+		// xoa TEN MON HOC cu 
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat TEN MON HOC moi
+		for (int j = 0; j < soLuongMon; j++) {
+			if (arrMH[j].getMaMH() == loptc[i]->getMaMH()) {
+				viTriMH = j; break; //j = soLuongMH;
+			}
+		}
+		outtextxy(x + (Bang.getCols(3)->getChieuRong() / 2 - textwidth(arrMH[viTriMH].getTenMH()) / 2), y, arrMH[viTriMH].getTenMH());
+		x += Bang.getCols(3)->getChieuRong();
+
+		// xoa KHOA cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat KHOA moi
+		outtextxy(x + (Bang.getCols(4)->getChieuRong() / 2 - textwidth(convertIntToChar(loptc[i]->getNienKhoa())) / 2), y, convertIntToChar(loptc[i]->getNienKhoa()));
+		x += Bang.getCols(4)->getChieuRong();
+
+		// xoa HK cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat HK moi
+		outtextxy(x + (Bang.getCols(5)->getChieuRong() / 2 - textwidth(convertIntToChar(loptc[i]->getHocKy())) / 2), y, convertIntToChar(loptc[i]->getHocKy()));
+		x += Bang.getCols(5)->getChieuRong();
+
+		// xoa NHOM cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(6)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat NHOM moi
+		outtextxy(x + (Bang.getCols(6)->getChieuRong() / 2 - textwidth(convertIntToChar(loptc[i]->getNhom())) / 2), y, convertIntToChar(loptc[i]->getNhom()));
+		x += Bang.getCols(6)->getChieuRong();
+
+		// xoa STCLT cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(7)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat STCLT moi
+		arrMH[viTriMH].getTCTH();
+		outtextxy(x + (Bang.getCols(7)->getChieuRong() / 2 - textwidth(convertIntToChar(arrMH[viTriMH].getTCLT())) / 2), y, convertIntToChar(arrMH[viTriMH].getTCLT()));
+		x += Bang.getCols(7)->getChieuRong();
+
+		// xoa STCTH  cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(8)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat STCTH moi
+		outtextxy(x + (Bang.getCols(8)->getChieuRong() / 2 - textwidth(convertIntToChar(arrMH[viTriMH].getTCTH())) / 2), y, convertIntToChar(arrMH[viTriMH].getTCTH()));
+		x += Bang.getCols(8)->getChieuRong();
+
+		// xoa Diem cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
+			convertStringToChar(string((Bang.getCols(9)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// xuat Diem moi
+		if (loptc[i]->getDSDK().getDiemSV(0) < 0) {
+			string diem = "0";
+			outtextxy(x + (Bang.getCols(9)->getChieuRong() / 2 - textwidth(convertStringToChar(diem)) / 2), y, convertStringToChar(diem));
+			x += Bang.getCols(9)->getChieuRong();
+		}
+		else {
+			outtextxy(x + (Bang.getCols(9)->getChieuRong() / 2 - textwidth(convertFloatToChar(loptc[i]->getDSDK().timDiemSV_DK(maSV))) / 2), y, convertFloatToChar(loptc[i]->getDSDK().timDiemSV_DK(maSV)));
+			x += Bang.getCols(9)->getChieuRong();
+		}
+
+	}
+}
+
+
+
+
+
+void DSLTC::xuatDiemTheoTrang1SV(LopTC* loptc[], treeMH DSMH, int tongSoDong, thaoTac& hDLTC, string maSV, string hoTen) {
+
+	setfillstyle(SOLID_FILL, mauNen);
+	bar(0, 0, 1525, 777);
+	tieuDebangdiem1SV();
+	setbkcolor(mauNen);
+	setcolor(Blue);
+	settextstyle(10, 0, 3);
+	outtextxy(500, 140, convertStringToChar(_SV));
+	outtextxy(500 + textwidth(convertStringToChar(_SV)) + 10, 140, convertStringToChar(hoTen));
+	outtextxy(500 + textwidth(convertStringToChar(_SV)) + 20 + textwidth(convertStringToChar(hoTen)), 140, convertStringToChar(maSV));
+	buttonBack();
+
+
+	setfillstyle(SOLID_FILL, BlueNhat);
+	bar(40, 243, 1490, 744);
+	vien(40, 1490, 243, 744);
+	buttonTien();
+	buttonLui();
+	int soLuongMH = 0;
+	soLuongMH = DSMH.soNode(DSMH.getRoot());
+	Subject* arrMH = new Subject[soLuongMH];
+	soLuongMH = 0;
+	DSMH.nhapCayVaoMang(arrMH, DSMH.getRoot(), soLuongMH);
+
+	int soDu = (tongSoDong % maxDong > 0) ? 1 : 0;
+
+	int tongSoTrang = tongSoDong / maxDong + soDu;
+	int trangHienTai = 1;
+
+	int batDau = 0;
+	int ketThuc = (tongSoDong > maxDong) ? maxDong : tongSoDong;
+
+	Table newTable = table_Diem1SV();
+	newTable.drawTable(maxDong);
+
+
+	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+	setbkcolor(BlueNhat); setcolor(Den);
+	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+	xuatDiem1Trang1SV(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, maSV);
+	int x, y;
+	bool ok = true;
+
+	while (ok) {
+		//delay(200);
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			clearmouseclick(WM_LBUTTONDOWN);
+			if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && trangHienTai > 1) {
+
+				batDau = batDau - maxDong;
+				ketThuc = batDau + maxDong;
+				trangHienTai--;
+				xuatDiem1Trang1SV(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, maSV);
+				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				setbkcolor(BlueNhat); setcolor(Den);
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+			}
+			else if ((777 <= x && x <= 848 && 703 <= y && y <= 734) && trangHienTai < tongSoTrang) {
+				batDau = batDau + maxDong;
+				ketThuc = (ketThuc + maxDong > tongSoDong) ? tongSoDong : ketThuc + maxDong;
+				trangHienTai++;
+				xuatDiem1Trang1SV(loptc, arrMH, soLuongMH, batDau, ketThuc, newTable, maSV);
+				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				setbkcolor(BlueNhat); setcolor(Den);
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+
+			}
+			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
+				hDLTC = BACK;
+				break;
+			}
+
+		}
+	}
+}
+
+
+void DSLTC::xuatDiem1SV(treeMH DSMH, DSSV sv, thaoTac& hDLTC) {
+
+
+	string str1 = "";
+	Input* input[1];
+	input[0] = new Input(str1, 2, "Nhap Ma SV:", 50, 0, 650, 1050, 200, 225, graynhat, 0, 4);
+	input[0]->draw();
+
+	int x = -1;
+	int y = -1;
+
+	LopTC* loptc[MAX_LOPTC];
+
+	int soLuongLop = 0;
+	for (int i = 0; i < n; i++) {
+		loptc[i] = new LopTC();
+		loptc[i] = this->lopTC[i];
+	}
+	string strho;
+	string strten;
+	while (1) {
+		// delay(10);
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			clearmouseclick(WM_LBUTTONDOWN);
+			if (500 <= x && x <= 900 && 200 <= y && y <= 225) {
+				input[0]->setCheck(true);
+				input[0]->addChar();
+			}
+			else if (1057 <= x && x <= 1151 && 709 <= y && y <= 748) {
+				string maSV = input[0]->getContentStr();
+				NodeSV* Sv = sv.timSV(maSV);
+				if (Sv == nullptr) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("KHONG TIM THAY SINH VIEN !!!"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+					continue;
+				}
+				else {
+
+					for (int i = 0; i < n; i++) {
+						if (checkDK_LTC(i, maSV) == true) {
+							loptc[soLuongLop] = new LopTC();
+							loptc[soLuongLop++] = this->lopTC[i];
+						}
+					}
+					if (soLuongLop > 0) {
+						strho = Sv->getDataSV().getHo();
+						strten = Sv->getDataSV().getTen();
+						strho = strho + " ";
+						strho = strho + strten;
+						cleardevice();
+						xuatDiemTheoTrang1SV(loptc, DSMH, soLuongLop, hDLTC, maSV, strho);
+						if (hDLTC == BACK) break;
+					}
+					else {
+						MessageBox(
+							NULL,
+							(LPCWSTR)convertCharArrayToLPCWSTR("SINH VIEN CHUA DANG KY LOP HOC NAO !!!"),
+							(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+							MB_ICONINFORMATION | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+						);
+						continue;
+					}
+				}
+
+
+			}
+			else if (425 <= x && x <= 520 && 695 <= y && y <= 734) {
+				//on = 0;
+				//hDDK = BACK;
+				break;
+			}
+
+
+		}
+	}
+
+
+}
+
+void DSLTC::xuatDiemTB(treeMH DSMH, DSSV sv) {
+	//menuBangDiemTB();
+	int tongSoSV=sv.soLuongSV();
+	setfillstyle(SOLID_FILL, mauNen);
+	bar(0, 0, 1525, 777);
+	setbkcolor(Be);
+	setfillstyle(SOLID_FILL, Be);
+	bar(397, 20, 1173, 100);
+	settextstyle(10, 0, 7);
+	setcolor(Blue);
+	//outtextxy((397 + 1173) / 2 - textwidth(convertStringToChar("sv->getDataSV().getMaLop()")) / 2, (20 + 100) / 2 - textheight(convertStringToChar(sv->getDataSV().getMaLop())) / 2, convertStringToChar(sv->getDataSV().getMaLop()));
+	vien(397, 1173, 20, 100);
+	//tieuDeLopSV();
+	buttonBack();
+	setfillstyle(SOLID_FILL, BlueNhat);
+	bar(40, 243, 1490, 744);
+	vien(40, 1490, 243, 744);
+	buttonTien();
+	buttonLui();
+	//textDiem1Lop(sv->getDataSV().getMaLop());
+	int x = -1, y = -1;
+	int batDau = 0;
+	int ketThuc = (tongSoSV >= maxDong) ? maxDong : tongSoSV;
+	Table newTable = table_DiemTB1Lop();
+	newTable.drawTable(maxDong);
+	int trangHienTai = 1;
+	int tongSoTrang = ((tongSoSV - 1) / maxDong) + 1;
+	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+	settextstyle(10, 0, 1);
+	setbkcolor(BlueNhat); setcolor(Den);
+	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+	bool ok = true;
+	xuat1TrangDiemTB1Lop(sv.getHeadSV(), batDau, ketThuc, newTable);
+	while (1) {
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			clearmouseclick(WM_LBUTTONDOWN);
+			if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && trangHienTai > 1) {
+
+				batDau = batDau - maxDong;
+				ketThuc = batDau + maxDong;
+				trangHienTai--;
+				xuat1TrangDiemTB1Lop(sv.getHeadSV(), batDau, ketThuc, newTable);
+				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				settextstyle(10, 0, 1);
+				setbkcolor(BlueNhat); setcolor(Den);
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+			}
+			else if (((777 <= x && x <= 848 && 703 <= y && y <= 734) && trangHienTai < tongSoTrang)) {
+
+				batDau = batDau + maxDong;
+				ketThuc = (ketThuc + maxDong > tongSoSV) ? tongSoSV : ketThuc + maxDong;
+				trangHienTai++;
+				xuat1TrangDiemTB1Lop(sv.getHeadSV(), batDau, ketThuc, newTable);
+				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+				settextstyle(10, 0, 1);
+				setbkcolor(BlueNhat); setcolor(Den);
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+			}
+			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
+				break;
+			}
+		}
+	}
+}
+
+
+
+
+void DSLTC::xuat1TrangDiemTB1Lop(NodeSV* SV, int batDau, int ketThuc, Table Bang) {
+	int soDong = ketThuc % maxDong;
+	if (soDong == 0) soDong = maxDong;
+	if (ketThuc == 0 && batDau == 0) soDong = maxDong;
+	else {
+		int soDongTrong = maxDong - ketThuc % maxDong;
+		soDong = ketThuc % maxDong == 0 ? ketThuc : ketThuc + soDongTrong;
+	}
+	char* STT = convertIntToChar(0);
+
+	for (int i = 0; i < batDau; i++) {
+		SV = SV->getNextSV();
+	}
+	int x = tableLeft;
+	int y = tableTop + kcY / 2 - textheight(STT) / 2;
+	setbkcolor(BlueNhat); setcolor(Den); settextstyle(10, 0, 1);
+	for (int i = batDau; i < soDong; i++) {
+		y += kcY;
+		if (i >= ketThuc) {
+			x = tableLeft;
+			STT = convertIntToChar(i + 1);
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(0)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(1)->getChieuRong();
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(2)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(3)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			continue;
+		}
+
+
+
+		x = tableLeft;
+		//STT
+		STT = convertIntToChar(i + 1);
+		//Xoa STT cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		//Xuat STT moi
+		outtextxy(x + (Bang.getCols(0)->getChieuRong() / 2 - textwidth(STT) / 2), y, STT);
+		x += Bang.getCols(0)->getChieuRong();
+		// MaSV
+		// Xoa maSV cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// Xuat maSV moi
+		outtextxy(x + (Bang.getCols(1)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getMaSV())) / 2), y, convertStringToChar(SV->getDataSV().getMaSV()));
+		x += Bang.getCols(1)->getChieuRong();
+		// HO
+		// Xoa Ho cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// Xuat Ho moi
+		outtextxy(x + (Bang.getCols(2)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getHo())) / 2), y, convertStringToChar(SV->getDataSV().getHo()));
+		x += Bang.getCols(2)->getChieuRong();
+		//Ten
+		//Xoa Ten cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		//Xuat Ten moi
+		outtextxy(x + (Bang.getCols(3)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getTen())) / 2), y, convertStringToChar(SV->getDataSV().getTen()));
+		x += Bang.getCols(3)->getChieuRong();
+		//DIEM
+		//Xoa DIEM cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		//Xuat DIEM moi
+		string maSV = SV->getDataSV().getMaSV();
+		int soLuongLop = 0;
+		float diem = 0;;
+		for (int i = 0; i < n; i++) {
+			if (checkDK_LTC(i, maSV) == true) {
+				soLuongLop++;
+				float diemsv = lopTC[i]->getDSDK().getDiemSVBangMa(maSV);
+				if (diemsv < 0) diemsv = 0;
+				diem += diemsv;// soLuongLop ben trong la vi tri cua masv tai lop
+			}
+		}
+		float diemtb;
+		if (soLuongLop == 0) {
+			diemtb = 0;
+		}
+		else {
+			diemtb = diem / soLuongLop;
+			diemtb = static_cast<float>(static_cast<int>(diemtb * 10)) / 10;
+		}
+
+		outtextxy(x + (Bang.getCols(4)->getChieuRong() / 2 - textwidth(convertFloatToChar(diemtb)) / 2), y, convertFloatToChar(diemtb));
+
+		x = tableLeft;
+
+		//clearmouseclick(WM_LBUTTONDOWN);
+		SV = SV->getNextSV();
+	}
+}
+
+
+float DSLTC::diemMax1Mon(string maMH, string masv) {
+	int soMon = 0;
+	LopTC* loptc[MAX_LOPTC];
+	for (int i = 0; i < n; i++) {
+		if (lopTC[i]->getMaMH() == maMH) {
+			loptc[soMon] = new LopTC();
+			loptc[soMon++] = this->lopTC[i];
+		}
+
+	}
+	float maxDiem = 0;
+	//if (soMon == 0) return -1;
+	int monDaHoc = 0;
+	int viTri = 0;
+	for (int i = 0; i < soMon; i++) {
+		 viTri = tim_LTC(loptc[i]->getMaLopTC());
+		if (lopTC[viTri]->getDSDK().getDiemSV(0) > 0 && checkDK_LTC(viTri, masv) == true) {
+			monDaHoc++;
+			if (maxDiem < lopTC[viTri]->getDSDK().getDiemSVBangMa(masv)) {
+				maxDiem = lopTC[viTri]->getDSDK().getDiemSVBangMa(masv);
+				//cout << "  -" << maMH << "-0-" << masv << "    ";
+			}
+		}
+	}
+	if (monDaHoc == 0) return -1;
+
+
+	return maxDiem;
+}
+
+
+void DSLTC::xuatDiemTK(treeMH MH,DSSV sv) {
+	int tongMH = 0;
+	int tongSoSV = sv.soLuongSV();
+	Subject* arrDaMo = new Subject[100];
+	MH.nhapMHMoVaoMang(arrDaMo, MH.getRoot(), tongMH);
+	setfillstyle(SOLID_FILL, mauNen);
+	bar(0, 0, 1525, 777);
+	setbkcolor(Be);
+	setfillstyle(SOLID_FILL, Be);
+	bar(397, 20, 1173, 100);
+	settextstyle(10, 0, 7);
+	setcolor(Blue);
+	//outtextxy((397 + 1173) / 2 - textwidth(convertStringToChar(sv->getDataSV().getMaLop())) / 2, (20 + 100) / 2 - textheight(convertStringToChar(sv->getDataSV().getMaLop())) / 2, convertStringToChar(sv->getDataSV().getMaLop()));
+	vien(397, 1173, 20, 100);
+	//tieuDeLopSV();
+	buttonBack();
+	setfillstyle(SOLID_FILL, BlueNhat);
+	bar(40, 243, 1490, 744);
+	vien(40, 1490, 243, 744);
+	buttonTien();
+	buttonLui();
+	buttonTienMH();
+	buttonLuiMH();
+	//textDiemTK1Lop(sv->getDataSV().getMaLop());
+	int x = -1, y = -1;
+	int batDau = 0;
+	int ketThuc = (tongSoSV >= maxDong) ? maxDong : tongSoSV;
+	Table newTable = table_DiemTK1Lop();
+	newTable.drawTable(maxDong);
+	int trangHienTai = 1;
+	int tongSoTrang = ((tongSoSV - 1) / maxDong) + 1;
+	int batDauMH = 0;
+	int ktMH = (tongMH >= 5) ? 5 : tongMH;
+	int trangMHHT = 1;
+	int tongSoTrangMH = ((tongMH - 1) / 5) + 1;
+	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+	settextstyle(10, 0, 1);
+	setbkcolor(BlueNhat); setcolor(Den);
+	outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+
+	string str1 = to_string(trangMHHT) + " / " + to_string(tongSoTrangMH);
+	settextstyle(10, 0, 1);
+	setbkcolor(mauNen); setcolor(Den);
+	outtextxy((1020 + 1100) / 2 - textwidth(convertStringToChar(str1)) / 2, (230 + 190) / 2 - textheight(convertStringToChar(str1)) / 2, convertStringToChar(str1));
+
+	bool ok = true;
+	int hD = 0;
+	bool On = true;
+	xuat1TrangDiemTK1Lop(sv.getHeadSV(), batDau, ketThuc, newTable, hD, arrDaMo, batDauMH, ktMH, tongSoSV, tongMH);
+	while (On) {
+		switch (hD) {
+		case 1: {
+			batDau = batDau - maxDong;
+			ketThuc = batDau + maxDong;
+			trangHienTai--;
+
+			str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+			settextstyle(10, 0, 1);
+			setbkcolor(BlueNhat); setcolor(Den);
+			outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+			xuat1TrangDiemTK1Lop(sv.getHeadSV(), batDau, ketThuc, newTable, hD, arrDaMo, batDauMH, ktMH, tongSoSV, tongMH);
+			break;
+		}
+		case 2: {
+			batDau = batDau + maxDong;
+			ketThuc = (ketThuc + maxDong > tongSoSV) ? tongSoSV : ketThuc + maxDong;
+			trangHienTai++;
+
+			str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
+			settextstyle(10, 0, 1);
+			setbkcolor(BlueNhat); setcolor(Den);
+			outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+			xuat1TrangDiemTK1Lop(sv.getHeadSV(), batDau, ketThuc, newTable, hD, arrDaMo, batDauMH, ktMH, tongSoSV, tongMH);
+			break;
+		}
+		case 3: {
+			On = 0;
+			break;
+		}
+		case 4: {
+			batDauMH = batDauMH - 5;
+			ktMH = batDauMH + 5;
+			trangMHHT--;
+
+			str1 = to_string(trangMHHT) + " / " + to_string(tongSoTrangMH);
+			settextstyle(10, 0, 1);
+			setbkcolor(mauNen); setcolor(Den);
+			outtextxy((1020 + 1100) / 2 - textwidth(convertStringToChar(str1)) / 2, (230 + 190) / 2 - textheight(convertStringToChar(str1)) / 2, convertStringToChar(str1));
+			xuat1TrangDiemTK1Lop(sv.getHeadSV(), batDau, ketThuc, newTable, hD, arrDaMo, batDauMH, ktMH, tongSoSV, tongMH);
+			break;
+		}
+		case 5: {
+			batDauMH = batDauMH + 5;
+			ktMH = (ktMH + 5 > tongMH) ? tongMH : (ktMH + 5);
+			trangMHHT++;
+			str1 = to_string(trangMHHT) + " / " + to_string(tongSoTrangMH);
+			settextstyle(10, 0, 1);
+			setbkcolor(mauNen); setcolor(Den);
+			outtextxy((1020 + 1100) / 2 - textwidth(convertStringToChar(str1)) / 2, (230 + 190) / 2 - textheight(convertStringToChar(str1)) / 2, convertStringToChar(str1));
+			xuat1TrangDiemTK1Lop(sv.getHeadSV(), batDau, ketThuc, newTable, hD, arrDaMo, batDauMH, ktMH, tongSoSV, tongMH);
+			break;
+		}
+		}
+
+
+	}
+	delete[] arrDaMo;
+}
+
+
+void DSLTC::xuat1TrangDiemTK1Lop(NodeSV* SV, int batDau, int ketThuc, Table Bang, int& hD, Subject* arr, int batDauMH, int ktMH, int tongSoSV, int tongSoMH) {
+	hD = 0;
+	int soDong = ketThuc % maxDong;
+	if (soDong == 0) soDong = maxDong;
+	if (ketThuc == 0 && batDau == 0) soDong = maxDong;
+	else {
+		int soDongTrong = maxDong - ketThuc % maxDong;
+		soDong = ketThuc % maxDong == 0 ? ketThuc : ketThuc + soDongTrong;
+	}
+	int soMH = ktMH % 5;
+	if (soMH == 0) soMH = 5;
+	if (ktMH == 0 && batDauMH == 0) soMH = 5;
+	else {
+		int soDongMH = 5 - ktMH % 5;
+		soMH = ktMH % 5 == 0 ? ktMH : ktMH + soDongMH;
+	}
+	char* STT = convertIntToChar(0);
+
+	for (int i = 0; i < batDau; i++) {
+		SV = SV->getNextSV();
+	}
+	int x = tableLeft;
+	int x1 = x + 680;
+	int y = tableTop + kcY / 2 - textheight(STT) / 2;
+	int dem = 4;
+	float diem = 0;
+	setbkcolor(BlueNhat); setcolor(Den); settextstyle(10, 0, 1);
+	for (int i = 0; i < 5; i++) {
+		outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		x1 += Bang.getCols(4)->getChieuRong();
+
+		outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+		x1 += Bang.getCols(5)->getChieuRong();
+		outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(6)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+		x1 += Bang.getCols(6)->getChieuRong();
+
+		outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(7)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		x1 += Bang.getCols(7)->getChieuRong();
+
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(8)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+	}
+	x1 = x + 680;
+	for (int i = batDauMH; i < soMH; i++) {
+		outtextxy(x1 + (Bang.getCols(4)->getChieuRong() / 2 - textwidth(convertStringToChar(arr[i].getMaMH())) / 2), y, convertStringToChar(convertStringToChar(arr[i].getMaMH())));
+		x1 += Bang.getCols(4)->getChieuRong();
+	}
+	for (int i = batDau; i < soDong; i++) {
+		y += kcY;
+		if (i >= ketThuc) {
+			x = tableLeft;
+			STT = convertIntToChar(i + 1);
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(0)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(1)->getChieuRong();
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(2)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(3)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(4)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(5)->getChieuRong();
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(6)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x += Bang.getCols(6)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(7)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x += Bang.getCols(7)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(8)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+
+			continue;
+		}
+
+
+
+		x = tableLeft;
+		//STT
+		STT = convertIntToChar(i + 1);
+		//Xoa STT cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(0)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		//Xuat STT moi
+		outtextxy(x + (Bang.getCols(0)->getChieuRong() / 2 - textwidth(STT) / 2), y, STT);
+		x += Bang.getCols(0)->getChieuRong();
+		// MaSV
+		// Xoa maSV cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(1)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// Xuat maSV moi
+		outtextxy(x + (Bang.getCols(1)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getMaSV())) / 2), y, convertStringToChar(SV->getDataSV().getMaSV()));
+		x += Bang.getCols(1)->getChieuRong();
+		// HO
+		// Xoa Ho cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(2)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		// Xuat Ho moi
+		outtextxy(x + (Bang.getCols(2)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getHo())) / 2), y, convertStringToChar(SV->getDataSV().getHo()));
+		x += Bang.getCols(2)->getChieuRong();
+		//Ten
+		//Xoa Ten cu
+		outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(3)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		//Xuat Ten moi
+		outtextxy(x + (Bang.getCols(3)->getChieuRong() / 2 - textwidth(convertStringToChar(SV->getDataSV().getTen())) / 2), y, convertStringToChar(SV->getDataSV().getTen()));
+		x += Bang.getCols(3)->getChieuRong();
+		//DIEM
+		//Xoa DIEM cu
+		x1 = x;
+		for (int i = 0; i < 5; i++) {
+			outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(4)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x1 += Bang.getCols(4)->getChieuRong();
+
+			outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(5)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x1 += Bang.getCols(5)->getChieuRong();
+			outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(6)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+
+			x1 += Bang.getCols(6)->getChieuRong();
+
+			outtextxy(x1 + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(7)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+			x1 += Bang.getCols(7)->getChieuRong();
+
+			outtextxy(x + textwidth(convertStringToChar(string("|"))), y, convertStringToChar(string((Bang.getCols(8)->getChieuRong() - textwidth(convertStringToChar(string("|")))) / textwidth(convertStringToChar(string(" "))), ' ')));
+		}
+		//them diem moi 
+		x1 = x;
+		// nhập điêm vào đây 
+		 dem = 4;
+		 diem = 0;
+		for (int i = batDauMH; i < soMH; i++) {
+			/*outtextxy(x + (Bang.getCols(4)->getChieuRong() / 2 - textwidth(convertStringToChar(arr[i].getMaMH())) / 2), y, convertStringToChar(convertStringToChar(arr[i].getMaMH())));
+			x1 += Bang.getCols(4)->getChieuRong();*/
+
+			diem = diemMax1Mon(arr[i].getMaMH(), SV->getDataSV().getMaSV());
+			if (diem >= 0) {
+				outtextxy(x + (Bang.getCols(dem)->getChieuRong() / 2 - textwidth(convertFloatToChar(diem)) / 2), y, convertFloatToChar(diem));
+
+			}
+			x += Bang.getCols(dem)->getChieuRong();
+			dem++;
+		}
+		x = tableLeft;
+
+		//clearmouseclick(WM_LBUTTONDOWN);
+		SV = SV->getNextSV();
+	}
+	while (1) {
+		if (ismouseclick(WM_LBUTTONDOWN)) {
+			getmouseclick(WM_LBUTTONDOWN, x, y);
+			clearmouseclick(WM_LBUTTONDOWN);
+			if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && (batDau) / 10 > 0) {
+				cout << "lui";
+				hD = 1;
+				break;
+			}
+			else if (((777 <= x && x <= 848 && 703 <= y && y <= 734) && (ketThuc - 1) / 10 < (tongSoSV - 1) / 10)) {
+				hD = 2;
+				cout << "Tien";
+				break;
+			}
+			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
+				hD = 3;
+				break;
+			}
+			else if (950 <= x && x <= 1020 && 190 <= y && y <= 230 && batDauMH / 5 > 0) {
+				hD = 4;
+				break;
+			}
+			else if (1100 <= x && x <= 1180 && 190 <= y && y <= 230 && (ktMH - 1) / 5 < (tongSoMH - 1) / 5) {
+				hD = 5; break;
+
+
+			}
+		}
+	}
+}
 
 void DSLTC::freeDS_LTC() {
 	for (int i = 0; i < n; i++) {
 		if (this->lopTC[i] != NULL) {
 			lopTC[i]->getDSDK().free_DSDK();
 			delete lopTC[i];
-			//lopTC[i] = nullptr;
+
 		}
 	}
-	//delete[] lopTC;
+
 	n = 0;
 }
 
@@ -2452,14 +3250,12 @@ void DSLTC::menuLTC() {
 
 	_menuLTC();
 
-	//loadDataDS_LTC();
 
 	treeMH DSMH;
 	DSMH.xuatDataMH();
 
-	DSLH dsLop;
-	dsLop.xuatDSLH();
-	dsLop.xuatDSSV();
+	DSSV sv;
+	sv.xuatDSSV();
 
 	char s[] = { "" };
 	int x = -1, y = -1;
@@ -2486,13 +3282,6 @@ void DSLTC::menuLTC() {
 				else if (320 <= x && x <= 1170 && 1330 <= y && y <= 214) {
 					hDLTC = DANGKY;
 				}
-				else if (183 <= x && x <= 559 && 169 <= y && y <= 205) {
-					//nhapLocMH(s, t, hDMH);
-
-				}
-				else if (563 <= x && x <= 630 && 169 <= y && y <= 205) {
-					hDLTC = LOC;
-				}
 				else if (1359 <= x && x <= 1490 && 169 <= y && y <= 214) {
 					hDLTC = XUATDK;
 				}
@@ -2500,10 +3289,12 @@ void DSLTC::menuLTC() {
 		}
 		switch (hDLTC) {
 		case XUAT: {
+			NodeSV* Sv = { NULL };
+
 			cleardevice();
 			_menuLTC();
 			soLuong = n;
-			xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi);
+			xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi, sv);
 
 			break;
 		}
@@ -2514,9 +3305,6 @@ void DSLTC::menuLTC() {
 			int viTri = 0;
 			inputNhapLTC("", "", "", "", "", "", "", 0, DSMH, viTri, hDLTC);
 			cleardevice();
-			_menuLTC();
-			soLuong = n;
-			//xuatDSTheoTrang_LTC(DSMH, soLuong, soLuong, hDLTC, s, thaoTacRoi);
 			hDLTC = XUAT;
 			break;
 		}
@@ -2526,36 +3314,36 @@ void DSLTC::menuLTC() {
 			menuDkLTC();
 			soLuong = n;
 
-			inputDkLTC(DSMH, "", "", "", dsLop, hDLTC);
-			//xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi);
+			inputDkLTC(DSMH, "", "", "", sv, hDLTC);
 			hDLTC = XUAT;
 			break;
 		}
 		case HUY: {
 			//cleardevice();
 			menuHuyLTC();
-			soLuong = n;
+			//soLuong = n;
 			huyLTC("", "", hDLTC);
-			cleardevice();
-			_menuLTC();
-			soLuong = n;
-			xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi);
-			//hDLTC = XUAT;
-			//
+			hDLTC = XUAT;
+			//	cleardevice();
+				//_menuLTC();
+				//soLuong = n;
+				//xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi, dsLop);
+				//hDLTC = XUAT;
+				//
 			break;
 		}
 		case XUATDK: {
 			menuXuatSVDK();
-			xuatDSDK(dsLop);
+
+			xuatDSDK(sv, hDLTC, DSMH);
 			cleardevice();
 			_menuLTC();
 			soLuong = n;
-			xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi);
+			xuatDSTheoTrang_LTC(DSMH, viTriChon, soLuong, hDLTC, s, thaoTacRoi, sv);
 			break;
 		}
 		case BACK: {
-			//delete dsLop;
-			//freeDS_LTC();
+
 			cleardevice();
 			ok = 0;
 			break;
@@ -2575,9 +3363,8 @@ void DSLTC::menuDiem() {
 	treeMH DSMH;
 	DSMH.xuatDataMH();
 
-	DSLH dsLop;
-	dsLop.xuatDSLH();
-	dsLop.xuatDSSV();
+	DSSV sv;
+	sv.xuatDSSV();
 
 	thaoTac hDLTC = XUAT;
 	int soLuong;
@@ -2587,33 +3374,21 @@ void DSLTC::menuDiem() {
 
 		switch (hDLTC) {
 		case XUAT: {
+
+
 			cleardevice();
 			_menuDiem();
 			soLuong = n;
-			xuatDiemLTC(DSMH, dsLop, soLuong, hDLTC);
+			xuatDiemLTC(DSMH, sv, soLuong, hDLTC);
 			break;
 		}
-		case THEM: {
-			//cleardevice();
-			menuThemLTC();
-
-			hDLTC = XUAT;
-			break;
-		}
-		case DANGKY: {
-
-			hDLTC = XUAT;
-			break;
-		}
-		case HUY: {
+		case DIEM1SV: {
 			//cleardevice();
 
-			//hDLTC = XUAT;
-			//
-			break;
-		}
-		case XUATDK: {
-
+			menuInputDiem1SV();
+			xuatDiem1SV(DSMH, sv, hDLTC);
+			cleardevice();
+			hDLTC = XUAT;
 			break;
 		}
 		case BACK: {
@@ -2623,8 +3398,18 @@ void DSLTC::menuDiem() {
 			ok = 0;
 			break;
 		}
-
-
+		case DIEMTB: {
+			cleardevice();
+			xuatDiemTB(DSMH, sv);
+			hDLTC = XUAT;
+			break;
+		}
+		case DIEMTK: {
+			cleardevice();
+			xuatDiemTK(DSMH, sv);
+			hDLTC = XUAT;
+			break;
+		}
 		}
 	}
 

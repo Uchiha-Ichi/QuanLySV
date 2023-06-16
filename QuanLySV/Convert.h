@@ -34,7 +34,14 @@ char* convertFloatToChar(float so) {
 }
 
 
-
+string convertFloatToString(float so) {
+    stringstream ss;
+    ss << so;
+    string str;
+    str = ss.str();
+    
+    return str;
+}
 
 
 // dung cho MessageBoxx

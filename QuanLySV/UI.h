@@ -116,11 +116,26 @@ Table table_MH() {
 	return newTable;
 }
 Table table_SV() {
-	int soCot = 7;
+	int soCot = 8;
 	Table newTable;
 	newTable.setCols(soCot);
-	int arrWidth[7] = { 60, 250, 300,120, 160, 200, 180 };
-	const char* arrName[7] = { "STT","Ma SV","Ho","Ten","Gioi tinh","Sdt","Nam Nhap Hoc" };
+	int arrWidth[8] = { 60, 210, 240,100, 160, 200, 180,160 };
+	const char* arrName[8] = { "STT","Ma SV","Ho","Ten","Gioi tinh","Sdt","Nam Nhap Hoc","Ma Lop"};
+	for (int i = 0; i < soCot; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		char arr[100];
+		strcpy_s(arr, arrName[i]);
+		newTable.getCols(i)->setTen(arr);
+	}
+
+	return newTable;
+}
+Table table_DiemTB1Lop() {
+	int soCot = 5;
+	Table newTable;
+	newTable.setCols(soCot);
+	int arrWidth[5] = { 60, 350, 400,220, 250 };
+	const char* arrName[5] = { "STT","Ma SV","Ho","Ten","DIEM TB" };
 	for (int i = 0; i < soCot; i++) {
 		newTable.getCols(i)->setChieuRong(arrWidth[i]);
 		char arr[100];
@@ -151,8 +166,7 @@ Table table_LTC() {
 	int numOfCols = 12;
 	Table newTable;
 	newTable.setCols(numOfCols);
-
-	int arrWidth[12] = { 70,100,100, 420, 100,70,70,70,70,70,100,100 }; // 100, 420
+	int arrWidth[12] = { 70,100,100, 420, 100,70,70,70,70,70,100,130 }; // 100, 420
 	string arrName[12] = { "STT",
 								  "Ma lop",
 								  "Ma MH",
@@ -179,8 +193,8 @@ Table table_DK() {
 	Table newTable;
 	newTable.setCols(numOfCols);
 
-	int arrWidth[11] = { 80,200,350, 150, 250,300 }; // 100, 420
-	string arrName[11] = { "STT",
+	int arrWidth[6] = { 80,200,350, 150, 250,300 }; // 100, 420
+	string arrName[6] = { "STT",
 								  "Ma SV",
 								  "Ho",
 								  "Ten",
@@ -196,13 +210,40 @@ Table table_DK() {
 	return newTable;
 }
 
+Table table_Diem1SV() {
+	int numOfCols = 10;
+	Table newTable;
+	newTable.setCols(numOfCols);
+
+	int arrWidth[10] = { 70,100,100, 420, 100,100,100,100,100,100 }; // 100, 420
+	string arrName[10] = { "STT",
+								  "Ma Lop",
+								  "Ma MH",
+								  "Ten mon hoc",
+								  "HK",
+								  "Khoa",
+								  "Nhom",
+								  "STCLT",
+								  "STCTH",
+								  "Diem"
+	};
+
+	for (int i = 0; i < numOfCols; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		newTable.getCols(i)->setTen(convertStringToChar(arrName[i]));
+	}
+
+	return newTable;
+}
+
+
 Table table_Diem1Lop() {
 	int numOfCols = 6;
 	Table newTable;
 	newTable.setCols(numOfCols);
 
-	int arrWidth[11] = { 70,150,300, 120, 200,100 }; // 100, 420
-	string arrName[11] = { "STT",
+	int arrWidth[6] = { 60, 300, 350,220, 250,100 }; // 100, 420
+	string arrName[6] = { "STT",
 								  "Ma SV",
 								  "Ho",
 								  "Ten",
@@ -217,7 +258,27 @@ Table table_Diem1Lop() {
 
 	return newTable;
 }
+Table table_DiemTK1Lop() {
+	int numOfCols = 9;
+	Table newTable;
+	newTable.setCols(numOfCols);
 
+	int arrWidth[9] = { 60, 250, 250,120, 120,120,120,120,120 }; // 100, 420
+	string arrName[9] = { "STT",
+								  "Ma SV",
+								  "Ho",
+								  "Ten",
+								  " ",
+								  " "," "," "," "
+	};
+
+	for (int i = 0; i < numOfCols; i++) {
+		newTable.getCols(i)->setChieuRong(arrWidth[i]);
+		newTable.getCols(i)->setTen(convertStringToChar(arrName[i]));
+	}
+
+	return newTable;
+}
 class UI {
 protected:
 	int left;

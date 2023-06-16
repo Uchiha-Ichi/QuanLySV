@@ -2,7 +2,7 @@
 
 #include "Const.h"
 #include "MH.h"
-#include"LopSV.h"
+#include"SV.h"
 #include "DSLTC.h"
 
 
@@ -27,6 +27,13 @@ void menuFirst() {
 	setcolor(Blue);
 	outtextxy((81 + 205) / 2 - textwidth(_luuY) / 2, (363 + 412) / 2 - textheight(_luuY) / 2, _luuY);
 	// nut
+	settextstyle(10, 0, 1);
+	setbkcolor(mauNen);
+	setcolor(Den);
+	outtextxy(15, 460, convertStringToChar("- Dung chuot de thao tac"));
+	outtextxy(15, 510, convertStringToChar("- Chuot trai:Chon/xoa/huy"));
+
+	outtextxy(15, 560, convertStringToChar("- Chuot phai:Sua/xoa"));
 	_buttonLopTinChi();
 
 	_buttonSinhVien();
@@ -38,22 +45,24 @@ void menuFirst() {
 }
 
 
-void free(treeMH cayMH, DSLH lop) {
-	lop.freeDSLH(lop.getHeadLH());
-	cayMH.DeleteNode(cayMH.getRoot());
-
-
-}
+//void free(treeMH cayMH, DSLH lop) {
+//	lop.freeDSLH(lop.getHeadLH());
+//	cayMH.DeleteNode(cayMH.getRoot());
+//
+//
+//}
 
 
 
 void menuFirstSet() {
 	menuFirst();
 	treeMH cayMH;
-	DSLH lop;
+	DSSV SV;
 	DSLTC LTC;
 	int colorNen = YELLOW;
 	int colorText = BLACK;
+	cayMH.xuatDataMH();
+	SV.xuatDSSV();
 	LTC.loadDataDS_LTC();
 	LTC.loadDataDS_DK();
 	int x = -1, y = -1;
@@ -71,7 +80,7 @@ void menuFirstSet() {
 			}
 			else if (x >= 679 && x <= 1011 && y >= 354 && y <= 421) {
 				cleardevice();
-				lop.menuSetLop(on);
+				SV.menuSetSV(on);
 				menuFirst();
 				// Sinh vien  
 			}
@@ -84,6 +93,7 @@ void menuFirstSet() {
 			else if (x >= 679 && x <= 1011 && y >= 583 && y <= 651) {
 				cleardevice();
 				LTC.menuDiem();
+				menuFirst();
 				// diem 
 			}
 			else if (1400 <= x && x <= 1490 && 10 <= y && y <= 60) {
@@ -95,5 +105,5 @@ void menuFirstSet() {
 			}
 		}
 	}
-	free(cayMH, lop);
+	//free(cayMH, SV);
 }

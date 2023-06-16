@@ -2,7 +2,6 @@
 
 #include "Const.h"
 #include "SV.h"
-#include "LopSV.h"
 
 
 class SVDangKy {
@@ -29,18 +28,10 @@ class DSDK {
 private:
 	SVDangKy* SV;// = new SVDangKy[10000];
 	int n;
-	int ndk;
 public:
 	DSDK();
 
-	void setNdk(int n);
-
-	int getNdk();
-
-	// setter getter
-	int getN_DK();
-
-	void setN_DK(int n_);
+	DSDK(int maxSV);
 
 	SVDangKy** getSV();
 
@@ -48,11 +39,17 @@ public:
 
 	float getDiemSV(int index);
 
+	float getDiemSVBangMa(string MASV);
+
+	void suaDiemSV(int viTri, float diem);
+
 	//	void getDSDK();
 
 	bool isNull_DSDK();
 
 	bool isFull_DSDK();
+
+	int timNhiPhan(int l, int r, string masv);
 
 	int timSV_DK(string MASV);
 
@@ -66,42 +63,19 @@ public:
 
 	bool checkSV_DK(string maSV);
 
-	int them(SVDangKy* Sv) {
-		if (isFull_DSDK() == true) return 0;
-		/*
-		if (isNull_DSDK() == true) {
-			themDau_DK(Sv);
-			return 1;
-		}
-		*/
-		SV[n++] = *Sv;
-		return 1;
-
-	}
-
-	void xuat() {
-		//cout << getNdk();
-		cout << " _" << getN_DK() << "_ ";
-		for (int i = 0; i < n; i++) {
-			cout << SV[i].getMaSV() << " ^ ";
-		}
-		if (n == 0) cout << ":((((";
-	}
-
+	void sortDSDK(int left, int right);
 
 	void writeData_DK(int maLopTC, ofstream& fileOut);
 
-	void xuatDS1Trang_DK(DSLH dslop, int batDau, int ketThuc, Table newTable);
+	void xuatDS1Trang_DK(DSSV sv, int batDau, int ketThuc, Table newTable);
 
-	void xuatDSTrang_DK(DSLH dslop, int tongSoDong);
+	void xuatDSTrang_DK(DSSV sv, int tongSoDong, thaoTac& hDDK, int& kiemTra);
 
-	void xuatDS(DSLH dslop);
+	void xuatDS(DSSV sv);
 
 	void free_DSDK();
 
-	void swapSVDK(string maSV1, string maSV2);
 
-	void sortDSDK();
 };
 
 
@@ -140,41 +114,13 @@ string SVDangKy::getMaSV() {
 DSDK::DSDK() {
 	SV = new SVDangKy[1000];
 	n = 0;
-	ndk = 0;
 }
 
-void DSDK::setNdk(int a) {
-	ndk = a;
+DSDK::DSDK(int maxSV) {
+	SV = new SVDangKy[maxSV];
+	n = 0;
 }
 
-int DSDK::getNdk() {
-	int ans = 0;
-	for (int i = 0; i < 10000; i++)
-	{
-		if (SV[i].getMaSV() != "") {
-			ans++;
-		}
-	}
-	return ans;
-}
-
-int DSDK::getN_DK() {
-	/*
-	for (int i = 0; i < 10000; i++)
-	{
-		if (SV[i].getMaSV() == "") {
-			return i;
-		}
-	}
-	*/
-	return this->n;
-	// return sizeof(SV) / sizeof(SVDangKy);
-	//return
-}
-
-void DSDK::setN_DK(int n_) {
-	this->n = n_;
-}
 
 SVDangKy** DSDK::getSV() {
 	return &SV;
@@ -189,6 +135,25 @@ float DSDK::getDiemSV(int index) {
 	return SV[index].getDiem();
 }
 
+float DSDK::getDiemSVBangMa(string MASV) {
+	int index = timSV_DK(MASV);
+	return SV[index].getDiem();
+
+}
+
+void DSDK::suaDiemSV(int viTri, float diem) {
+	if (diem < 0 || diem>10) {
+		MessageBox(
+			NULL,
+			(LPCWSTR)convertCharArrayToLPCWSTR("DIEM KHONG HOP LE !!!"),
+			(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+			MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+		);
+	}
+	else {
+		SV[viTri].setDiem(diem);
+	}
+}
 
 bool DSDK::isNull_DSDK() {
 	return this->n == 0;
@@ -209,6 +174,7 @@ int DSDK::themDau_DK(SVDangKy Sv) {
 	}
 	SV[0] = Sv;
 	n++;
+
 	return 1;
 }
 
@@ -223,20 +189,53 @@ int DSDK::them_DK(SVDangKy Sv) {
 	}
 	*/
 	if (Sv.getMaSV() == "") return 0;
-	SV[n] = Sv;
-	n++;
-	//	getN_DK();
+	if (n == 0) {
+		SV[n++] = Sv;
+		return 1;
+	}
+	else {
+		for (int i = 0; i < n; i++) {
+			if (Sv.getMaSV() < SV[i].getMaSV()) {
+
+				for (int j = n; j > i; j--) {
+					SV[j] = SV[j - 1];
+				}
+				SV[i] = Sv;
+				n++;
+				return 1;
+			}
+		}
+	}
+
+	SV[n++] = Sv;
+	//SV[n] = Sv;
+
+	//sortDSDK(0, n);
+
+
+
 	return 1;
 
 }
 
-int DSDK::timSV_DK(string MASV) {
-	for (int i = 0; i < n; i++)
-	{
-		if (this->SV[i].getMaSV() == MASV) {
-			return i;
-		}
+int DSDK::timNhiPhan(int l, int r, string masv) {
+	if (r >= l) {
+		int mid = l + (r - l) / 2;
+
+		if (SV[mid].getMaSV() == masv)
+			return mid;
+
+		if (SV[mid].getMaSV() > masv)
+			return timNhiPhan(l, mid - 1, masv);
+
+		return timNhiPhan(mid + 1, r, masv);
 	}
+	return -1;
+
+}
+
+int DSDK::timSV_DK(string MASV) {
+	return timNhiPhan(0, n - 1, MASV);
 	return -1;
 }
 
@@ -256,6 +255,7 @@ int DSDK::xoaSV_DK(string _MASV) {
 }
 
 
+
 float DSDK::timDiemSV_DK(string MASV) {
 	if (isNull_DSDK() == true) return -1;
 
@@ -264,7 +264,6 @@ float DSDK::timDiemSV_DK(string MASV) {
 	return SV[timSV_DK(MASV)].getDiem();
 }
 
-
 bool DSDK::checkSV_DK(string maSV) {
 	for (int i = 0; i < n; i++) {
 		if (SV[i].getMaSV() == maSV) return true;
@@ -272,9 +271,10 @@ bool DSDK::checkSV_DK(string maSV) {
 	return false;
 }
 
+
 void DSDK::writeData_DK(int maLopTC, ofstream& fileOut) {
 	char temp = ',';
-	for (int i = 0; i < getN_DK(); i++) {
+	for (int i = 0; i < n; i++) {
 		fileOut << maLopTC;
 		fileOut << temp;
 		fileOut << SV[i].getMaSV();
@@ -296,7 +296,7 @@ void DSDK::writeData_DK(int maLopTC, ofstream& fileOut) {
 }
 
 
-void DSDK::xuatDS1Trang_DK(DSLH dslop, int batDau, int ketThuc, Table Bang) {
+void DSDK::xuatDS1Trang_DK(DSSV sv, int batDau, int ketThuc, Table Bang) {
 	int soDong = ketThuc % maxDong;
 	if (soDong == 0) soDong = maxDong;
 	if (ketThuc == 0 && batDau == 0) soDong = maxDong;
@@ -351,8 +351,8 @@ void DSDK::xuatDS1Trang_DK(DSLH dslop, int batDau, int ketThuc, Table Bang) {
 		strSTT = convertIntToString(i + 1);
 
 		x = tableLeft;
-
-		Sv = dslop.timDataSinhVien(SV[i].getMaSV());
+		//Sv = dslop.timDataSinhVien()
+		Sv = sv.timSV(SV[i].getMaSV());
 
 		// xoa STT cu
 		outtextxy(x + textwidth(convertStringToChar(string("|"))), y,
@@ -403,9 +403,9 @@ void DSDK::xuatDS1Trang_DK(DSLH dslop, int batDau, int ketThuc, Table Bang) {
 }
 
 
-void DSDK::xuatDSTrang_DK(DSLH dslop, int tongSoDong) {
+void DSDK::xuatDSTrang_DK(DSSV sv, int tongSoDong, thaoTac& hDDK, int& kiemTra) {
 
-
+	cout << "1";
 
 	int soDu = (tongSoDong % maxDong > 0) ? 1 : 0;
 
@@ -418,7 +418,7 @@ void DSDK::xuatDSTrang_DK(DSLH dslop, int tongSoDong) {
 	Table newTable = table_DK();
 	newTable.drawTable(maxDong);
 
-	xuatDS1Trang_DK(dslop, batDau, ketThuc, newTable);
+	xuatDS1Trang_DK(sv, batDau, ketThuc, newTable);
 
 	string str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
 	setbkcolor(BlueNhat); setcolor(Den);
@@ -431,26 +431,66 @@ void DSDK::xuatDSTrang_DK(DSLH dslop, int tongSoDong) {
 		if (ismouseclick(WM_LBUTTONDOWN)) {
 			getmouseclick(WM_LBUTTONDOWN, x, y);
 			clearmouseclick(WM_LBUTTONDOWN);
-			if ((600 <= x && x <= 670 && 670 <= y && y <= 700) && trangHienTai > 1) {
+			if (tableLeft <= x && x <= tableRightLopTC && tableTop + kcY <= y && y <= (ketThuc - (trangHienTai - 1) * maxDong) * kcY + tableTop + kcY) {
+				int check = false;
+				for (int i = 0; i < n; i++) {
+					if (SV[i].getDiem() > 0) {
+						check = true;
+						break;
+					}
+				}
+				if (check == true) {
+					MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR("LOP DA NHAP DIEM. KHONG THE HUY DANG KY"),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONERROR | MB_OK | MB_DEFAULT_DESKTOP_ONLY
+					);
+				}
+				else {
+					string str1 = "SV ";
+					string str2 = SV[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMaSV();
+					string str3 = " MUON HUY DANG KY LOP ?";
+					str1 = str1 + str2;
+					str1 = str1 + str3;
+					int tmp = MessageBox(
+						NULL,
+						(LPCWSTR)convertCharArrayToLPCWSTR(str1.c_str()),
+						(LPCWSTR)convertCharArrayToLPCWSTR("THONG BAO"),
+						MB_ICONQUESTION | MB_YESNO | MB_DEFAULT_DESKTOP_ONLY
+					);
+					if (tmp == IDYES) {
+						xoaSV_DK(SV[(y - tableTop - kcY) / kcY + (trangHienTai - 1) * maxDong].getMaSV());
+						kiemTra++;
+						tongSoDong--;
+						xuatDSTrang_DK(sv, tongSoDong, hDDK, kiemTra);
+
+						break;
+					}
+				}
+
+
+			}
+			if ((613 <= x && x <= 685 && 703 <= y && y <= 734) && trangHienTai > 1) {
 
 				batDau = batDau - maxDong;
 				ketThuc = batDau + maxDong;
 				trangHienTai--;
-				xuatDS1Trang_DK(dslop, batDau, ketThuc, newTable);
+				xuatDS1Trang_DK(sv, batDau, ketThuc, newTable);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
-				outtextxy((670 + 770) / 2 - textwidth(convertStringToChar(str)) / 2, (670 + 700) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 			}
-			else if ((770 <= x && x <= 830 && 670 <= y && y <= 700) && trangHienTai < tongSoTrang) {
+			else if ((777 <= x && x <= 848 && 703 <= y && y <= 734) && trangHienTai < tongSoTrang) {
 				batDau = batDau + maxDong;
 				ketThuc = (ketThuc + maxDong > tongSoDong) ? tongSoDong : ketThuc + maxDong;
 				trangHienTai++;
-				xuatDS1Trang_DK(dslop, batDau, ketThuc, newTable);
+				xuatDS1Trang_DK(sv, batDau, ketThuc, newTable);
 				str = to_string(trangHienTai) + " / " + to_string(tongSoTrang);
-				outtextxy((670 + 770) / 2 - textwidth(convertStringToChar(str)) / 2, (670 + 700) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
+				outtextxy((685 + 777) / 2 - textwidth(convertStringToChar(str)) / 2, (703 + 734) / 2 - textheight(convertStringToChar(str)) / 2, convertStringToChar(str));
 			}
 			else if (21 <= x && x <= 193 && 21 <= y && y <= 71) {
 				//	thaoTacRoi = 1;
-			//		hDLTC = BACK;
+				hDDK = XUAT;
 				break;
 
 			}
@@ -463,7 +503,7 @@ void DSDK::xuatDSTrang_DK(DSLH dslop, int tongSoDong) {
 
 
 
-void DSDK::xuatDS(DSLH dslop) {
+void DSDK::xuatDS(DSSV sv) {
 	string str1 = "";
 
 	int nInput = 1;
@@ -500,33 +540,41 @@ void DSDK::xuatDS(DSLH dslop) {
 
 
 void DSDK::free_DSDK() {
-	/*
-	for (int i = 0; i < n; i++) {
-		if (SV[i] != nullptr) {
-			delete SV[i];
 
-			}
-	}
-	*/
 	delete[] SV;
 	n = 0;
 }
 
 
-void DSDK::swapSVDK(string maSV1, string maSV2) {
-	string	tmp = maSV1;
-	maSV1 = maSV2;
-	maSV2 = tmp;
-}
+void DSDK::sortDSDK(int l, int r) {
+	string p = SV[(l + r) / 2].getMaSV();
+	int i = l, j = r;
+	while (i < j) {
+		while (SV[i].getMaSV() < p) {
+			i++;
+		}
+		while (SV[j].getMaSV() > p) {
+			j--;
+		}
+		if (i <= j) {
+			string tmp = SV[i].getMaSV();
+			SV[i].setMaSV(SV[j].getMaSV()); // = SV[j].setMaSV(SV[i].getMaSV());
+			SV[j].setMaSV(tmp);
 
-void DSDK::sortDSDK() {
-	for (int i = 0; i < n - 1; i++) {
-		for (int j = i + 1; j < n; j++) {
-			if (SV[i].getMaSV() > SV[j].getMaSV()) {
-				swapSVDK(SV[i].getMaSV(), SV[j].getMaSV());
-			}
+			float tam = SV[i].getDiem();
+			SV[i].setDiem(SV[j].getDiem());
+			SV[j].setDiem(tam);
+			i++;
+			j--;
 		}
 	}
+	if (i < r) {
+		sortDSDK(i, r);
+	}
+	if (l < j) {
+		sortDSDK(l, j);
+	}
 }
+
 
 

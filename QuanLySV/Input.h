@@ -1,5 +1,6 @@
 #pragma once
 #include"UI.h"
+#include "Convert.h"
 class Input : public UI {
 protected:
     // char id[2];
@@ -49,6 +50,44 @@ public:
         return ans;
     }
 
+    float getContentFoat() {
+        float Diem;
+        float diem1, diem2;
+        string diem = getContentStr();
+        if (diem[0] == '.') {
+            Diem = -1;
+            return Diem;
+        }
+
+        if (diem.size() == 1) {
+            Diem = atoi(getContent());
+            return Diem;
+        }
+        else if (diem.size() == 2) {
+            if (diem == "10") {
+                Diem = atoi(getContent());
+                return Diem;
+            }
+            Diem = -1;
+            return Diem;
+        }
+        else if (diem.size() == 3) {
+            if (diem[2] == '.' || diem[1] != '.') {
+                Diem = -1;
+                return Diem;
+            }
+            diem1 = (int)(diem[0]) - 48;
+            diem2 = (int)(diem[2]) - 48;;
+            Diem = diem1 + diem2 / 10;
+            Diem = static_cast<float>(static_cast<int>(Diem * 10)) / 10;
+            return Diem;
+
+        }
+
+
+
+    }
+
     char* chuanHoa(char* a) {
         if (strlen(a) == 0) {
             return a;
@@ -82,7 +121,7 @@ public:
         if (48 <= c && c <= 57) return 1;
         else if (65 <= c && c <= 90) return 1;
         else if (97 <= c && c <= 122)return 1;
-        else if (c == 32 || c == 45) return 1;
+        else if (c == 32 || c == 45 || c == 46) return 1;
         else return false;
     }
     void addChar() {
@@ -121,6 +160,17 @@ public:
                             }
                         }
                     }
+                    else if (this->type == 4) {
+                        while (1) {
+                            if ((97 <= c && c <= 122) || (65 <= c && c <= 90) || c == 32 || c == 45) {
+
+                                c = getch();
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                    }
                     if (c == 8 && tmp > 0) {
                         if (strlen(content) > 0) {
                             content[tmp] = ' ';
@@ -128,7 +178,7 @@ public:
                             content[--tmp] = '|';
                         }
                     }
-                    else if (kiTu(c) == 1 && tmp < this->maxChar && this->check == true) {
+                    else if (kiTu(c) == 1 && tmp < this->maxChar && this->check == true) { // type != 4&&
                         if (strlen(content) < 50) {
                             content[tmp++] = c;
                             content[tmp] = '\0';
