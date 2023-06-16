@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include"Const.h"
 #include"Convert.h"
 #include"Input.h"
@@ -63,7 +63,9 @@ public:
 	void xoaSV(string maSV);
 	bool checkTrung(string maSV);
 	int soLuongSV();
+	int soLuongSVLop(string maLop );
 	void vietDSSV();
+	void mangLop(string arr[100],int& n);
 	void xuatDSSV();
 	void locSV(string key, DSSV& dssv, int& n);
 	void xuat1TrangDSV(NodeSV* SV, int batDau, int ketThuc, Table Bang);
@@ -268,6 +270,22 @@ bool DSSV::viTriThem(NodeSV* tmp,NodeSV* sv) {
 		}
 	}
 }
+//
+void DSSV::mangLop(string arr[100],int &n) {
+	NodeSV* tmp = getHeadSV();
+	int ok = 0;
+	while (tmp != NULL) {
+		ok = 0;
+		for (int i = 0; i < n; i++) {
+			if (arr[i] == tmp->getDataSV().getMaLop()) {
+				ok = 1;
+				break;
+			}
+		}
+		if (ok == 0) arr[n++] = tmp->getDataSV().getMaLop();
+		tmp = tmp->getNextSV();
+	}
+}
 void  DSSV::themSV(SinhVien& sv, int& check) {
 
 	if (checkRong() == false) {
@@ -361,6 +379,18 @@ int DSSV::soLuongSV() {
 	}
 	return soLuong;
 }
+int DSSV::soLuongSVLop(string maLop) {
+	int n = 0;
+	NodeSV* tmp = getHeadSV();
+	while (tmp != NULL) {
+		if (tmp->getDataSV().getMaLop() == maLop) {
+			n++;
+		}
+		tmp = tmp->getNextSV();
+	}
+	return n;
+}
+
 void DSSV::locSV(string key, DSSV& dssv, int& n) {
 	dssv.freeSV(dssv.getHeadSV());
 	dssv.setHeadSV(NULL);
