@@ -176,7 +176,7 @@ bool treeMH::checkTrung(string maMH) {
             tmp = tmp->getLeft();
         }
         else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) > 0) {
-            tmp = tmp->getLeft();
+            tmp = tmp->getRight();
         }
         else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) == 0) {
             return true;
@@ -230,7 +230,7 @@ Node* treeMH::timMH(string maMH) {
             tmp = tmp->getLeft();
         }
         else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) > 0) {
-            tmp = tmp->getLeft();
+            tmp = tmp->getRight();
         }
         else if (strcmp(maMH.c_str(), tmp->getData().getMaMH()) == 0) {
             return tmp;
